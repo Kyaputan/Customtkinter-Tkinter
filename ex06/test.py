@@ -1,0 +1,1111 @@
+import customtkinter as ctk
+import cv2
+from PIL import Image, ImageTk
+from ultralytics import YOLO
+import tkinter as tk
+from tkinter import messagebox
+import os
+import time
+import threading
+import face_recognition
+import requests
+from queue import Queue
+import numpy as np
+
+url_line = 'https://notify-api.line.me/api/notify'
+token = 'SDmx9lI11Ml0GzCU4CB2vTL04b6t0pMqPi8s0Dmv8bH'
+headers = {'content-type': 'application/x-www-form-urlencoded', 'Authorization': 'Bearer ' + token}
+root = ctk.CTk() 
+model_path = "CodeCit/Collet/Model/best.pt"
+model = YOLO(r"E:\Code_python\CodeCit\Lab5 Customtkinter&Tkinter\ex06\This.pt")
+global_ip_camera_url = ""
+url = ""
+global selected_value , cap_a , cap_b , cap_r  , entry_name
+snake_count = 0
+personfall_count = 0
+vomit_count = 0
+running_a = False
+running_b = False
+running_r = False
+known_face_images = []
+known_face_encodings = []
+known_face_names = []
+All_name = []
+last_known_notified_time = 0  # Store the last notification time for known faces
+last_unknown_notified_time = 0  # Store the last notification time for unknown faces
+unknown_frame_count = 0  # Count of frames with unknown faces
+known_frame_count = 0  # Count of frames with known faces
+lock = threading.Lock()  # Lock for thread safety
+frame_counter = 0
+interval = 5
+folder_path = "CodeCit/Lab5 Customtkinter&Tkinter/ex06/Face_reg"
+image_count = 0
+image_face_count = 0
+active_frame_count = 0
+home_frame = None
+second_frame = None
+Third_frame = None
+entry_name_sitting = ""
+entry_password = ""
+url_now = ""
+global_selected_quality = ""
+
+def quality_selected(selected_port):
+    global global_selected_quality
+    global_selected_quality = selected_port
+
+    # ตรวจสอบค่าที่เลือก
+    if selected_port == "เลือกคุณภาพ":
+        print("Selected quality: ไม่มีคุณภาพที่เลือก")
+        global_selected_quality = "stream2"
+    elif selected_port == "คุณภาพสูง":
+        print("Selected quality: stream1")
+        global_selected_quality = "stream1"  # อัปเดตค่า
+    elif selected_port == "ประสิทธิภาพสูง":
+        print("Selected quality: stream2")
+        global_selected_quality = "stream2"  # อัปเดตค่า
+
+def show_frame(frame_name):
+    global home_frame, second_frame , Third_frame  # Access global frames
+    
+    # Hide all frames
+    home_frame.pack_forget()
+    second_frame.pack_forget()
+    Third_frame.pack_forget()
+
+    # Show the requested frame
+    if frame_name == "home":
+        home_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    elif frame_name == "frame_2":
+        second_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+    elif frame_name =="frame_3":
+        Third_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
+
+def find_known_face_names():
+    global image_count
+    folder_path = "CodeCit/Lab5 Customtkinter&Tkinter/ex06/Face_reg"
+
+    for filename in os.listdir(folder_path):
+        image_count += 1
+        if filename.endswith(".jpg"):
+            image_path = os.path.join(folder_path, filename)
+            image = face_recognition.load_image_file(image_path)
+            encoding = face_recognition.face_encodings(image)
+            time.sleep(0.3)
+
+            if len(encoding) > 0:
+                encoding_exists = False
+                for known_encoding in known_face_encodings:
+                    distance = np.linalg.norm(known_encoding - encoding[0])
+                    if distance < 0.6:
+                        encoding_exists = True
+                        break
+
+                if not encoding_exists:
+                    known_face_images.append(image)
+                    known_face_encodings.append(encoding[0])
+                    
+                    name = os.path.splitext(filename)[0]
+                    known_face_names.append(name)
+                    time.sleep(0.1)
+
+    if len(known_face_names) == 0:  # If no known faces were found
+        messagebox.showerror("Error", "No Face input received")
+    else:
+        print(f"รู้จักบุคคลจำนวน {len(known_face_names)} คน: {known_face_names}")
+    
+    print(f"จำนวนรูปภาพในโฟลเดอร์: {image_count} รูป")
+
+def show_frame_r(label_r, folder_path, interval=5):
+    global running_r, cap_r, image_count, start_time 
+    if not running_r:
+        return
+
+    if not cap_r.isOpened():
+        print("Failed to open camera")
+        return
+
+    ret, frame = cap_r.read()
+    if not ret:
+        print("Failed to grab frame")
+        return
+    start_time = time.time()
+    small_frame = cv2.resize(frame, (320, 240))
+    small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+    detect_bounding_box(small_frame)
+    # แสดงภาพบน label
+    img = Image.fromarray(small_frame)
+    imgtk = ImageTk.PhotoImage(image=img)
+    label_r.imgtk = imgtk
+    label_r.configure(image=imgtk)
+
+    # เรียก show_frame_r ใหม่หลังจาก 200 มิลลิวินาที
+    label_r.after(70, show_frame_r, label_r, folder_path, interval)
+    
+def toggle_camera_r():
+    global running_r, cap_r , interval
+    if running_r:
+        running_r = False
+        cap_r.release()
+    else:
+        running_r = True
+        cap_r = cv2.VideoCapture(0)  # กล้อง A ใช้ index 0
+        folder_path = "CodeCit/Lab5 Customtkinter&Tkinter/ex06/Face_reg"
+        thread_r = threading.Thread(target=show_frame_r, args=(label_r, folder_path ,interval))
+        thread_r.start()
+
+def detect_yolo(frame):
+    global snake_count , personfall_count , vomit_count
+    results = model(frame,conf=0.1)
+    snake_found = False
+    personfall_found = False
+    vomit_found = False
+    for result in results:  # results เป็นลิสต์
+        print("pass loop 1")
+        for detection in result.boxes:  # เข้าถึงข้อมูลการตรวจจับในแต่ละผลลัพธ์
+            class_id = int(detection.cls)  # หมายเลขคลาส
+            print("pass loop 2")
+            if   class_id == 3:  
+                snake_found = True
+            elif class_id == 0:  
+                personfall_found = True
+            elif class_id == 5:  
+                vomit_found = True
+                break
+        if snake_found or personfall_found or vomit_found:
+            break
+    if snake_found:
+                snake_count += 1
+                print(f"snake_count : {snake_count}")
+                if snake_count == 10: 
+                    message_S = "ตรวจพบสิ่งต้องสงสัยคล้ายงู"
+                    time.sleep(0.3)
+                    S = requests.post(url_line, headers=headers, data={'message': message_S})
+                    time.sleep(0.3)
+                    print(S.text)
+                    snake_count = 0 
+                    time.sleep(10)
+    else:
+                snake_count = 0
+
+    if personfall_found:
+                personfall_count += 1
+                print(f"personfall_count : {personfall_count}")
+                if personfall_count == 30:  # ถ้าพบคนครบ 10 ครั้ง
+                    message_P = "ตรวจพบบุคคลที่คาดว่าต้องการความช่วยเหลือ"
+                    time.sleep(0.3)
+                    P = requests.post(url_line, headers=headers, data={'message': message_P})
+                    time.sleep(0.3)
+                    print(P.text)
+                    personfall_count = 0  # เริ่มนับใหม่
+                    time.sleep(10)  # หน่วงเวลา 10 วินาทีก่อนจะส่งคำขอใหม่
+    else:
+                personfall_count = 0  # เริ่มนับใหม่เมื่อไม่พบคน
+
+    if vomit_found:
+                vomit_count += 1
+                print(f"vomit_count : {vomit_count}")
+                if vomit_count == 3:  # ถ้าพบรถครบ 10 ครั้ง
+                    message_V = "ตรวจพบเด็ก / บุคคลที่คาดว่าไม่สามารถช่วยเหลือตัวเองได้"
+                    time.sleep(0.3)
+                    V = requests.post(url_line, headers=headers, data={'message': message_V})
+                    time.sleep(0.3)
+                    print(V.text)
+                    vomit_count = 0  # เริ่มนับใหม่
+                    time.sleep(10)  # หน่วงเวลา 10 วินาทีก่อนจะส่งคำขอใหม่
+    else:
+                vomit_count = 0  # เริ่มนับใหม่เมื่อไม่พบรถ
+    return results[0].plot()
+
+def face_recog(frame):
+    global last_known_notified_time, last_unknown_notified_time , face_encodings
+    global unknown_frame_count, known_frame_count , known_face_names , face_locations
+    face_names = []
+    face_locations = face_recognition.face_locations(frame)
+    face_encodings = face_recognition.face_encodings(frame, face_locations)
+    
+
+    for face_encoding in face_encodings:
+        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+        name = "Unknown"
+        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+        best_match_index = face_distances.argmin()
+        if matches[best_match_index]:
+            name = known_face_names[best_match_index]
+        face_names.append(name)
+        current_time = time.time()
+
+        if name == "Unknown":
+            unknown_frame_count += 1  
+            if unknown_frame_count >= 5:
+                known_frame_count = 0  
+            print("test_face_unknown")
+            print(f"unknown_frame_count = {unknown_frame_count}")
+            if unknown_frame_count >= 10:  
+                if current_time - last_unknown_notified_time > 20:
+                    
+                    message_b = "ตรวจพบบุคคลไม่ทราบชื่อ"
+                    time.sleep(0.3)
+                    b = requests.post(url_line, headers=headers, data={'message': message_b})
+                    time.sleep(0.3)
+                    print(b.text)
+                    unknown_frame_count = 0
+                    last_unknown_notified_time = current_time
+
+
+        else:
+            known_frame_count += 1  # นับจำนวนเฟรมที่พบบุคคลที่รู้จัก
+
+            if known_frame_count >= 5:
+                unknown_frame_count = 0  
+            print("test_face_known")
+            print(f"known_frame_count = {known_frame_count}")
+            if known_frame_count >= 10:  
+                if current_time - last_known_notified_time > 10:
+                    message_r = f"ตรวจพบ {name}"
+                    time.sleep(0.3)
+                    r = requests.post(url_line, headers=headers, data={'message': message_r})
+                    time.sleep(0.3)
+                    print(r.text)
+                    known_frame_count = 0  
+                    last_known_notified_time = current_time
+                    
+    return frame  
+
+def show_frame_a(label_a, detection_mode):
+    global running_a, cap_a
+    if running_a:
+        if not cap_a.isOpened():
+            print("Failed to open camera")
+            return
+        ret, frame = cap_a.read()
+        if not ret:
+            print("Failed to grab frame")
+            return
+        small_frame = cv2.resize(frame, (320, 240))
+        small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+        if detection_mode.get() == "Face_Recognition":
+            recognition_thread = threading.Thread(target=face_recog, args=(small_frame,))
+            recognition_thread.start()
+        elif detection_mode.get() == "YOLO":
+             small_frame = detect_yolo(small_frame)
+        elif detection_mode.get() == "Both":
+             small_frame = detect_yolo(small_frame)
+             small_frame = face_recog(small_frame)
+        img = Image.fromarray(small_frame)
+        imgtk = ImageTk.PhotoImage(image=img)
+        label_a.imgtk = imgtk
+        label_a.configure(image=imgtk)
+        label_a.after(100, show_frame_a, label_a, detection_mode)
+
+def show_frame_b(label_b, detection_mode, url):
+    global running_b, cap_b, frame_counter, active_frame_count
+    if url:
+        if running_b:
+            if not cap_b.isOpened():
+                print("Failed to open camera")
+                return
+
+            # ล้างบัฟเฟอร์: ใช้ grab ข้ามเฟรมเก่า ๆ
+            for _ in range(5):  # ข้าม 5 เฟรมที่เก่าในบัฟเฟอร์
+                cap_b.grab()
+
+            ret, frame = cap_b.read()
+            if not ret:
+                print("Failed to grab frame")
+                return
+            
+            small_frame = cv2.resize(frame, (320, 240))
+            small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            if active_frame_count < 30:
+                if detection_mode.get() == "Face_Recognition":
+                    small_frame = face_recog(small_frame)
+                elif detection_mode.get() == "YOLO":
+                    small_frame = detect_yolo(small_frame)
+                elif detection_mode.get() == "Both":
+                    small_frame = detect_yolo(small_frame)
+                    small_frame = face_recog(small_frame)
+                active_frame_count += 1
+            else:
+                if frame_counter < 10:  # พัก 3 เฟรม
+                    frame_counter += 1
+                else:
+                    active_frame_count = 0
+                    frame_counter = 0
+            img = Image.fromarray(small_frame)
+            imgtk = ImageTk.PhotoImage(image=img)
+            label_b.imgtk = imgtk
+            label_b.configure(image=imgtk)
+            label_b.after(50, show_frame_b, label_b, detection_mode, url)
+    else:
+        messagebox.showerror("Error", "No address input received")
+
+def toggle_camera_a():
+    global running_a, cap_a
+    if detection_mode.get() == "Face_Recognition" and len(known_face_names) == 0:
+        messagebox.showerror("Error", "No known faces available. Please add known faces first.")
+        return
+    if running_a:
+        running_a = False
+        cap_a.release()
+    else:
+        running_a = True
+        cap_a = cv2.VideoCapture(0)  
+        thread_a = threading.Thread(target=show_frame_a, args=(label_a, detection_mode))
+        thread_a.start()
+
+def toggle_camera_b():
+    global running_b, cap_b, url
+    if not url:
+        messagebox.showerror("Error", "No address input received")
+        return
+    if detection_mode.get() == "Face_Recognition" and len(known_face_names) == 0:
+        messagebox.showerror("Error", "No known faces available. Please add known faces first.")
+        return
+    if running_b:
+        running_b = False
+        cap_b.release()
+    else:
+        running_b = True
+        cap_b = cv2.VideoCapture(url)
+        thread_b = threading.Thread(target=show_frame_b, args=(label_b, detection_mode, url))
+        thread_b.start()
+
+def start(): 
+    global Start_window, label_a, label_b, detection_mode
+    find_known_face_names()
+    Start_window = ctk.CTkToplevel(root)
+    Start_window.title("Main Detection")
+    screen_width = Start_window.winfo_screenwidth() / 2
+    screen_height = Start_window.winfo_screenheight() / 2
+    Start_window.geometry(f"{screen_width}x{screen_height}")
+    # Get image directory path
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    
+    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
+    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130))
+    logo_BG_image = ctk.CTkImage(Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(screen_width*2 , screen_height*2))
+
+    # Background image
+    bg_image_label = ctk.CTkLabel(Start_window, text="", image=logo_BG_image)
+    bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)  # Fill the entire window
+    # Lower the background image to be behind other widgets
+    bg_image_label.lower()
+    
+    # Configure logo frame
+    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame.pack(fill="x", pady=(0,10))  # Centering the frame horizontally with some padding
+
+    navigation_frame_label_KMITL = ctk.CTkLabel(logo_frame, text="", image=logo_KMITL_image, font=ctk.CTkFont(size=16, weight="bold"),fg_color="white",corner_radius=20)
+    navigation_frame_label_KMITL.pack(side="left", padx=20,pady=(10,10))
+
+    logo_rie_label = ctk.CTkLabel(logo_frame, text="", image=logo_RIE_image,fg_color="white",corner_radius=20)
+    logo_rie_label.pack(side="left",pady=(10,10))
+
+    # Create the label for the text (separate from the logo)
+    text_rie_label = ctk.CTkLabel(logo_frame, text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง วิทยาเขตชุมพรเขตรอุดมศักดิ์ \nRobotics and Intelligent Electronics Engineering", 
+                                font=ctk.CTkFont(size=16, weight="bold"), justify="left")
+    text_rie_label.pack(side="left", padx=10,pady=(10,10))
+
+    # Video frame
+    video_frame = ctk.CTkFrame(Start_window)
+    video_frame.pack(fill="y",  pady=10)  # Fill the remaining space
+
+    frame_a = ctk.CTkFrame(video_frame, width=320, height=320, fg_color="white",corner_radius=20) 
+    frame_a.pack(side="left", expand=True,anchor="n",pady=(5,10),padx=(30,100)) 
+    label_a = ctk.CTkLabel(frame_a, text="",image=logo_KMITL_image,width=320, height=320)
+    label_a.pack(side="top", expand=True, padx=10)  # Expand to fill remaining space
+    toggle_a_button = ctk.CTkButton(frame_a, text="เปิดกล้อง 1",
+                                   command=toggle_camera_a,
+                                   fg_color="#1F6AA5",
+                                   hover_color="#154870")
+    toggle_a_button.pack()
+
+    frame_b = ctk.CTkFrame(video_frame, width=320, height=320, fg_color="white",corner_radius=20) 
+    frame_b.pack(side="right", expand=True,anchor="n",pady=(5,10),padx=(100,30)) 
+    label_b = ctk.CTkLabel(frame_b, text="",image=logo_KMITL_image,width=320, height=320)
+    label_b.pack(side="top", expand=True, padx=10)  # Split the space for both video labels
+    toggle_b_button = ctk.CTkButton(frame_b, text="เปิดกล้อง 2",
+                                   command=toggle_camera_b,
+                                   fg_color="#1F6AA5",
+                                   hover_color="#154870")
+    toggle_b_button.pack()
+
+    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame.pack(pady=5, fill="y", side="top", padx=10)
+ 
+    # Back button
+    button1 = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=8,
+                           command=close_window, width=100,
+                           fg_color="#E74C3C", hover_color="#C0392B")
+    button1.pack(side="left", padx=10, pady=10)
+
+    button2 = ctk.CTkButton(menu_frame, text="ตั้งค่า", corner_radius=8,
+                           command=go_sitting, width=100,
+                           fg_color="#2ECC71", hover_color="#27AE60")
+    button2.pack(side="left", padx=10, pady=10)
+
+    button3 = ctk.CTkButton(menu_frame, text="Face Recognition", corner_radius=8,
+                           command=go_Face_Recognition, width=120,
+                           fg_color="#3498DB", hover_color="#2980B9")
+    button3.pack(side="left", padx=10, pady=10)
+
+    # Detection Mode
+    detection_mode = tk.StringVar(value="None")
+    modes = ["None","Face_Recognition","YOLO","Both"]
+
+    # Frame for radio buttons
+    radio_frame = ctk.CTkFrame(Start_window, corner_radius=10)
+    radio_frame.pack(pady=5, padx=10, fill="x")
+
+    # Create Radio Buttons for detection mode
+    mode_label = ctk.CTkLabel(radio_frame, text="Detection Mode",corner_radius=20,font=ctk.CTkFont(size=22, weight="bold"))
+    mode_label.pack(pady=(10,10))
+    for mode in modes:
+        rb = ctk.CTkRadioButton(radio_frame, text=mode, 
+                               variable=detection_mode, 
+                               value=mode,
+                               corner_radius=8)
+        rb.pack(pady=5, padx=20, anchor="w")
+
+def start_threads(label_a, label_b, detection_mode, url):
+    global running_a, running_b, cap_a, cap_b
+    if url:
+        running_b = True
+        cap_b = cv2.VideoCapture(url) 
+        thread_b = threading.Thread(target=show_frame_b, args=(label_b, detection_mode, url))
+        thread_b.start()
+    else:
+        messagebox.showerror("Error", "No address input received for Camera B")
+
+    running_a = True
+    cap_a = cv2.VideoCapture(0)  
+    thread_a = threading.Thread(target=show_frame_a, args=(label_a, detection_mode))
+    thread_a.start()
+
+
+def close_window():
+    global cap_a , cap_b ,running_a ,running_b
+    Start_window.destroy()
+    if running_a:
+        cap_a.release()
+    if running_b:
+        cap_b.release()
+
+def show_camera_a_value():
+    messagebox.showinfo("Camera A", f"Radio Variable Value: {radio_var.get()}")
+
+def go_sitting():
+    Start_window.destroy()
+    setting()
+
+def go_Face_Recognition():
+    Start_window.destroy()
+    face_recording()
+
+def show_camera_b_value():
+    global url
+    if url:
+        messagebox.showinfo("Camera B", f"Camera B URL: {url}")
+    else:
+        messagebox.showerror("Error", "No camera URL input provided")
+
+def find_names():
+    global All_name
+    folder_path = "CodeCit\Lab5 Customtkinter&Tkinter\ex06\Face_reg"
+    
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".jpg"):
+            name_without_extension = os.path.splitext(filename)[0]  # ตัดส่วนขยายออก
+            if name_without_extension not in All_name:  # ตรวจสอบว่าชื่อซ้ำหรือไม่
+                All_name.append(name_without_extension)  # เก็บเฉพาะชื่อไฟล์
+    return All_name
+
+def exit_sitting():
+    if messagebox.askokcancel("Exit", "Do you really want to main manu?"):
+        window_setting.destroy()
+
+def face_recording():
+    global face_window, label_r , entry_name
+    
+    face_window = ctk.CTkToplevel(root)
+    face_window.title("face_recording")
+    face_window.geometry(f"{1080}x{720}")
+    face_window.resizable(False, False)
+    find_names()
+
+    # Get image directory path
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    
+    # Load two images
+    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
+    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130))
+    logo_BG_image = ctk.CTkImage(Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(1080 , 720))
+
+    # Background image
+    bg_image_label = ctk.CTkLabel(face_window, text="", image=logo_BG_image)
+
+    bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)  # Fill the entire window
+    # Lower the background image to be behind other widgets
+    bg_image_label.lower()
+
+    logo_frame = ctk.CTkFrame(face_window)
+    logo_frame.pack(fill="x", pady=(0,10))  # Centering the frame horizontally with some padding
+
+    navigation_frame_label_KMITL = ctk.CTkLabel(logo_frame, text="", image=logo_KMITL_image, font=ctk.CTkFont(size=16, weight="bold"),fg_color="white",corner_radius=20)
+    navigation_frame_label_KMITL.pack(side="left", padx=20,pady=(10,10))
+
+    logo_rie_label = ctk.CTkLabel(logo_frame, text="", image=logo_RIE_image,fg_color="white",corner_radius=20)
+    logo_rie_label.pack(side="left",pady=(10,10))
+
+    # Create the label for the text (separate from the logo)
+    text_rie_label = ctk.CTkLabel(logo_frame, text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง วิทยาเขตชุมพรเขตรอุดมศักดิ์ \nRobotics and Intelligent Electronics Engineering", 
+                                font=ctk.CTkFont(size=16, weight="bold"), justify="left")
+    text_rie_label.pack(side="left", padx=10,pady=(10,10))
+
+    main_frame = ctk.CTkFrame(face_window,fg_color="black")
+    main_frame.pack(fill="y",  pady=20)  # Fill the remaining space
+
+    video_frame = ctk.CTkFrame(main_frame,fg_color="#161616")
+    video_frame.pack(side="left",fill="y")
+
+    frame_r = ctk.CTkFrame(video_frame, width=320, height=320, fg_color="white",corner_radius=20) 
+    frame_r.pack(expand=True,anchor="n",pady=(5,10),padx=(30,30)) 
+    label_r = ctk.CTkLabel(frame_r, text="",image=logo_KMITL_image,width=320, height=320)
+    label_r.pack(side="top", expand=True, padx=10,pady=10)  # Expand to fill remaining space
+    button1 = ctk.CTkButton(frame_r, text="เปิดกล้อง",command=toggle_camera_r)
+    button1.pack(side="bottom",pady=10)
+    exit_bottom = ctk.CTkButton(video_frame, text="Exit",command=exit_face, fg_color="red",text_color="black")
+    exit_bottom.pack(padx=10,pady=(10,5))
+
+    input_data_frame =ctk.CTkFrame(main_frame)
+    input_data_frame.pack(side="right",fill="y", padx=(30,30) , pady=(5,10))
+
+    label_name = ctk.CTkLabel(input_data_frame, text="ใส่ชื่อ",font=ctk.CTkFont(size=16, weight="bold"))
+    label_name.pack(padx=10,pady=5)
+    entry_name = ctk.CTkEntry(input_data_frame, placeholder_text="Enter image name")
+    entry_name.pack(padx=10,pady=5)
+
+    btn_save_b = ctk.CTkButton(input_data_frame, text="Save Image",command=countdown_and_save, fg_color="#3fd956",text_color="black")
+    btn_save_b.pack(padx=10,pady=(10,5))
+
+    btn_delete_b = ctk.CTkButton(input_data_frame, text="Delete Image",command=delete_image_face,fg_color="red",text_color="black")
+    btn_delete_b.pack(padx=10,pady=5)
+
+    scrollable_frame = ctk.CTkScrollableFrame(input_data_frame, label_text="CTkScrollableFrame")
+    scrollable_frame.pack(padx=10,pady=5)
+    for name in range(len(All_name)):
+        Name = ctk.CTkLabel(scrollable_frame, text=f"บุคคลที่{name+1} : {All_name[name]}",font=ctk.CTkFont(size=12, weight="normal"))  # แสดงชื่อจาก All_name
+        Name.pack(padx=10, pady=5)
+
+def exit_face():
+    if messagebox.askokcancel("Exit", "Do you really want to main manu?"):
+        face_window.destroy()
+    if running_r:
+        cap_r.release()
+
+def save_image_b():
+    global image_face_count , entry_name
+    if cap_r is not None and cap_r.isOpened():
+        ret, frame = cap_r.read()
+        if ret:
+            filename = entry_name.get()
+            if filename:
+                save_path = os.path.join(os.getcwd(), "CodeCit\Lab5 Customtkinter&Tkinter\ex06\Face_reg")
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+                image_face_count += 1
+                full_filename = os.path.join(save_path, f"{filename}.jpg")
+
+                if os.path.exists(full_filename):
+                    label_r.configure(text="File already exists! Choose another name.")
+                    return
+                
+                cv2.imwrite(full_filename, frame)
+                print(f"Image saved at: {full_filename}")
+                label_r.configure(text="Image saved!")
+            else:
+                label_r.configure(text="Please enter a name!")
+    
+def countdown_and_save():
+    countdown(4)  # เริ่มนับถอยหลังจาก 4 วินาที
+
+def countdown(count):
+        if count > 0:
+            label_r.configure(text=f"Saving in {count}...",text_color="yellow",font=ctk.CTkFont(size=18, weight="bold"))  # แสดงข้อความนับถอยหลัง
+            label_r.after(1000, countdown, count - 1)  # เรียกใช้งาน countdown อีกครั้งหลังจาก 1 วินาที
+        else:
+            save_image_b() 
+
+def delete_image_face():
+    filename = entry_name.get()
+    if filename:
+        if messagebox.askokcancel("Delete !!!",f"Do you really want to delete {filename} ?"):
+            for ext in ['.jpg', '.jpeg']:
+                file_path = os.path.join(os.getcwd(), "CodeCit\Lab5 Customtkinter&Tkinter\ex06\Face_reg", f"{filename}{ext}")
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"Deleted: {file_path}")
+                    label_r.configure(text=f"Deleted: {file_path}")
+                    return
+        messagebox.showerror("Delete !!!","File not found.")
+    else:
+        messagebox.showerror("Delete !!!","Please enter a name!")
+
+def delete_image_sitting():
+    filename = entry_name_Delete.get()
+    if filename:
+        if messagebox.askokcancel("Delete !!!", f"Do you really want to delete {filename}?"):
+            for ext in ['.jpg', '.jpeg']:
+                file_path = os.path.join(os.getcwd(), "CodeCit\Lab5 Customtkinter&Tkinter\ex06\Face_reg", f"{filename}{ext}")
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                    print(f"Deleted: {file_path}")
+                    messagebox.showinfo("Deleted")
+                    return
+        messagebox.showerror("Delete !!!", "File not found.")
+    else:
+        messagebox.showerror("Delete !!!", "Please enter a name!")
+
+def setting():
+    global home_frame, second_frame  , Third_frame ,entry_name_sitting , entry_password , url , url_now , entry_name_Delete , window_setting
+
+    window_setting = ctk.CTkToplevel(root)
+    window_setting.title("Setting")
+    window_setting.geometry("700x550")
+    window_setting.resizable(False, False)
+    find_names()
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    small_logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(76, 76))
+    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
+    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(26, 26))
+    address_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "address-book for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "address-book for dark.png")), size=(20, 20))
+    camera_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "camera for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "camera for dark.png")), size=(20, 20))
+    home_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "home for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "home for dark.png")), size=(20, 20))
+    lock_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "lock for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "lock for dark.png")), size=(20, 20))
+    sitting_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "settings for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "settings for dark.png")), size=(20, 20))
+    trash_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "trash for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "trash for dark.png")), size=(20, 20))
+    user_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "user for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "user for dark.png")), size=(20, 20))
+    video_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "video-camera-alt for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "video-camera-alt for dark.png")), size=(20, 20))
+    mode_event_icon= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "contrast.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "moon-phase.png")), size=(30, 30))
+    IP_address_logo= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "ip-address for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "ip-address for dark.png")), size=(20, 20))
+    
+    rescue_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "rescue for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "rescue for dark.png")), size=(30, 30))
+    baby_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "baby for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "baby for dark.png")), size=(30, 30))
+    snake_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "snake for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "snake for dark.png")), size=(30, 30))
+    bandit_logo = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "bandit for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "bandit for dark.png")), size=(30, 30))
+    loupe_logo= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "loupe.png")), size=(30, 30))
+
+    # create navigation frame
+    navigation_frame = ctk.CTkFrame(window_setting, corner_radius=20)
+    navigation_frame.pack(side="left", fill="y", padx=10, pady=10)
+
+    # create navigation labels and buttons
+    navigation_frame_label = ctk.CTkLabel(navigation_frame, text="  SITTING MENU", image=small_logo_KMITL_image,
+                                                    compound="left", font=ctk.CTkFont(size=15, weight="bold"),fg_color="white",text_color="#000000")
+    navigation_frame_label.pack(pady=20,ipadx=20,fill="x")
+
+    home_button = ctk.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Home",
+                                         fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                         image=home_logo, anchor="w", command=lambda: show_frame("home"))
+    home_button.pack(fill="x", pady=5)
+
+    frame_2_button = ctk.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Frame 2",
+                                            fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                            image=address_logo, anchor="w", command=lambda: show_frame("frame_2"))
+    frame_2_button.pack(fill="x", pady=5)
+
+    frame_3_button = ctk.CTkButton(navigation_frame, corner_radius=0, height=40, border_spacing=10, text="Frame 3",
+                                            fg_color="transparent", text_color=("gray10", "gray90"), hover_color=("gray70", "gray30"),
+                                            image=sitting_logo, anchor="w",command=lambda: show_frame("frame_3"))
+    frame_3_button.pack(fill="x", pady=5)
+
+    exit_sitting_Button = ctk.CTkButton(navigation_frame, text="Exit", fg_color="red",command=exit_sitting, hover_color="#FF9999",text_color="#F9FFFC")
+    exit_sitting_Button.pack(side="bottom", padx=20, pady=20)
+
+    # Create the home_frame
+    home_frame = ctk.CTkFrame(window_setting, corner_radius=0, fg_color="transparent")
+    home_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+    # Create the bottom part (center, left-bottom, and right-bottom frames)
+    mid_frame = ctk.CTkFrame(home_frame, corner_radius=0, fg_color="transparent")
+    mid_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+    # Create center frame (above left and right frames)
+    center_frame = ctk.CTkFrame(mid_frame, corner_radius=20, fg_color="gray50", height=50)
+    center_frame.pack(fill="both", expand=True, padx=10, pady=(10, 10))
+
+    head_User_manual = ctk.CTkLabel(center_frame, text="คู่มือการใช้งานระบบรักษาความปลอดภัย", font=ctk.CTkFont(size=18,weight="bold"),corner_radius=40)
+    head_User_manual.pack(pady=(10, 10))
+
+    User_manual_frame = ctk.CTkScrollableFrame(center_frame, corner_radius=40, fg_color="gray70")
+    User_manual_frame.pack(fill="both", expand=True, padx=10, pady=(0, 10))
+
+    User_manual_1 = ctk.CTkLabel(User_manual_frame, text="1.ผู้ใช้งานระบบจำเป็นต้องลงทะเบียนกล้องที่ ", image=address_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_1.pack(pady=(10,5))
+
+    User_manual_2 = ctk.CTkLabel(User_manual_frame, text="    • กรอกชื่อผู้ใช้ระบบ ", image=user_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_2.pack(pady=(5,5))
+
+    User_manual_3 = ctk.CTkLabel(User_manual_frame, text="    • กรอกรหัสผู้ใช้ระบบ ", image=lock_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_3.pack(pady=(5,5))
+
+    User_manual_4 = ctk.CTkLabel(User_manual_frame, text="    • กรอก IP ของกล้องผู้ใช้ ", image=IP_address_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_4.pack(pady=(5,5))
+
+    User_manual_5 = ctk.CTkLabel(User_manual_frame, text="    • เลือกคุณภาพของภาพ ", image=sitting_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_5.pack(pady=(5,5))
+
+    User_manual_6 = ctk.CTkLabel(User_manual_frame, text="2. ระบบสามารถตรวจจับได้ทั้งหมด 4 อย่างได้แก่",font=ctk.CTkFont(size=14),text_color="black")
+    User_manual_6.pack(pady=(10,5))
+
+    User_manual_7 = ctk.CTkLabel(User_manual_frame, text="    • คนล้ม  ", image=rescue_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black",anchor="w")
+    User_manual_7.pack(pady=(5,5))
+
+    User_manual_8 = ctk.CTkLabel(User_manual_frame, text="    • งู  ", image=snake_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black",anchor="w")
+    User_manual_8.pack(pady=(5,5))
+
+    User_manual_9 = ctk.CTkLabel(User_manual_frame, text="    • เด็กสำลอก  ", image=baby_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black",anchor="w")
+    User_manual_9.pack(pady=(5,5))
+
+    User_manual_10 = ctk.CTkLabel(User_manual_frame, text="    • คนแปลกหน้า  ", image=bandit_logo,compound="right",font=ctk.CTkFont(size=14),text_color="black",anchor="w")
+    User_manual_10.pack(pady=(5,10))
+
+    # Create left-bottom frame (same width as right-frame)
+    left_frame = ctk.CTkFrame(mid_frame, corner_radius=30, fg_color=("gray70", "gray30"), height=150,width=100)
+    left_frame.pack(side="left", fill="both", expand=True, padx=5, pady=10)
+
+    mode_event = ctk.CTkLabel(left_frame, text="",image=mode_event_icon,width=100, font=ctk.CTkFont(size=14))
+    mode_event.pack(pady=(5, 10))
+
+    appearance_mode_menu = ctk.CTkOptionMenu(left_frame, values=["Light", "Dark", "System"], command=change_appearance_mode_event,width=100)
+    appearance_mode_menu.pack(pady=(5, 10))  # Span over 3 columns
+    appearance_mode_menu.set("Light")
+    # Set scaling option menu
+
+    # Create right-bottom frame (same width as left-frame)
+    right_frame = ctk.CTkFrame(mid_frame, corner_radius=30, fg_color=("gray70", "gray30"), height=150,width=100)
+    right_frame.pack(side="right", fill="both", expand=True, padx=5, pady=10)
+
+    loupe_event = ctk.CTkLabel(right_frame, text="",image=loupe_logo,width=100, font=ctk.CTkFont(size=14))
+    loupe_event.pack(pady=(5, 10))
+
+    scaling_optionemenu = ctk.CTkOptionMenu(right_frame, values=["80%", "90%", "100%"], command=change_scaling_event,width=100)
+    scaling_optionemenu.pack(pady=(10, 10))  
+    scaling_optionemenu.set("100%")
+
+    second_frame = ctk.CTkFrame(window_setting, corner_radius=0, fg_color="transparent")
+    second_frame.pack(fill="both", expand=True)
+
+    camara_data_frame = ctk.CTkFrame(second_frame, corner_radius=0)
+    camara_data_frame.pack(fill="y", padx=10, pady=10)
+
+    label_Head = ctk.CTkLabel(camara_data_frame, text="ลงข้อมูลเชื่อมต่อระบบ RTSP", font=ctk.CTkFont(size=16, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+
+    # Define a fixed width for labels to align fields properly
+    label_width = 80  # Adjust width to balance text and icons
+
+    # Create frame for name entry and label
+    name_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    name_frame.pack(padx=10, pady=5, fill="x")
+
+    label_name = ctk.CTkLabel(name_frame, text=" ลงชื่อ", image=user_logo, compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_name.pack(side="left", padx=10, pady=5)
+
+    entry_name_sitting = ctk.CTkEntry(name_frame, placeholder_text="Enter name")
+    entry_name_sitting.pack(side="left", fill="x", expand=True, padx=10)
+
+    # Create frame for password entry and label
+    password_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    password_frame.pack(padx=10, pady=5, fill="x")
+
+    label_password = ctk.CTkLabel(password_frame, text=" รหัสผ่าน", image=lock_logo, compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_password.pack(side="left", padx=10, pady=5)
+
+    entry_password = ctk.CTkEntry(password_frame, show="*", placeholder_text="Enter password")
+    entry_password.pack(side="left", fill="x", expand=True, padx=10)
+
+    # Create frame for "Open Address" button and label
+    button_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=address_logo, compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+
+    # Create frame for port option menu and label
+    port_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    port_frame.pack(padx=10, pady=5, fill="x")
+
+    label_port = ctk.CTkLabel(port_frame, text=" คุณภาพ", image=sitting_logo, compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_port.pack(side="left", padx=10, pady=5)
+
+    # Create a second option menu for quality selection
+    quality_values = ["เลือกคุณภาพ", "คุณภาพสูง", "ประสิทธิภาพสูง"]
+    optionmenu_quality_values = ctk.CTkOptionMenu(port_frame, dynamic_resizing=True, values=quality_values,command=quality_selected)
+    optionmenu_quality_values.pack(side="left", fill="x", expand=True, padx=10)
+
+    # Agree button
+    agree_button = ctk.CTkButton(camara_data_frame, text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10)
+
+    label_port = ctk.CTkLabel(second_frame, text="โดยทั่วไปแล้ว RTSP Link จะมีหน้าตาดังนี้ \n rtsp://Rachata:123456@198.162.0.100:554/stream1 \n โดยที่แยกได้เป็นดังนี้ \n rtsp:// ชื่อผู้ใช้ : รหัสผู้ใช้ @ ip_camera: port(554) / คุณภาพ" , font=ctk.CTkFont(size=14))
+    label_port.pack( padx=10, pady=5)
+
+    url_now = ctk.CTkLabel(second_frame, text=f" Link RTSP ของคุณคือ \n {url}" , font=ctk.CTkFont(size=14))
+    url_now.pack( padx=10, pady=5)
+
+    Third_frame = ctk.CTkFrame(window_setting, corner_radius=0, fg_color="transparent")
+
+    main_frame_Third = ctk.CTkFrame(Third_frame, corner_radius=30 ,fg_color="gray")
+    main_frame_Third.pack(pady=20,padx=10,fill="both",expand=True)
+
+    Delete_Image_button = ctk.CTkButton(main_frame_Third, text="Delete Image",command=delete_image_sitting)
+    Delete_Image_button.pack(side="bottom",fill="both",pady=(10,20),padx=30, expand=True,anchor="s")
+
+    entry_name_Delete = ctk.CTkEntry(main_frame_Third, placeholder_text="Enter Name")
+    entry_name_Delete.pack(side="bottom", fill="x",expand=True, padx=30,anchor="s",pady=(10,0))
+
+    lable_ScrollableFrame =ctk.CTkLabel(main_frame_Third, text="รายชื่อบุคคลที่ลงทะเบียน" , font=ctk.CTkFont(size=25,weight="bold"))
+    lable_ScrollableFrame.pack( padx=10, pady=5)
+
+    mane_frame_Third = ctk.CTkScrollableFrame(main_frame_Third, corner_radius=30 ,fg_color="gray70")
+    mane_frame_Third.pack(pady=10,padx=20,fill="both",expand=True)
+
+    for name in range(len(All_name)):
+        Name_sitting = ctk.CTkLabel(mane_frame_Third, text=f"บุคคลที่{name+1} : {All_name[name]}",font=ctk.CTkFont(size=12, weight="normal"))
+        Name_sitting.pack(padx=10, pady=5)
+
+
+
+def detect_bounding_box(frame):
+    face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+    faces = face_classifier.detectMultiScale(frame, 1.1, 5, minSize=(40, 40))
+    for (x, y, w, h) in faces:
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+    return frame
+
+def on_radio_select(*args):
+    global selected_value
+    selected_value = radio_var.get()
+
+radio_var = tk.IntVar(value=0)
+radio_var.trace("w", on_radio_select)
+
+def change_scaling_event(new_scaling: str):
+    new_scaling_float = int(new_scaling.replace("%", "")) / 100
+    ctk.set_widget_scaling(new_scaling_float)
+
+def input_dialog_Address_2():
+    global global_ip_camera_url
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_2 = dialog.get_input()
+    if address_2:
+        global_ip_camera_url = address_2
+        print("Address :", global_ip_camera_url)
+    else:
+        print("No address input received")
+
+def combine_button():
+    global url, entry_name_sitting, entry_password, global_selected_quality, url_now 
+    if global_ip_camera_url and entry_name_sitting and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name_sitting.get()  # ดึงค่าชื่อจาก Entry
+        password = entry_password.get()  # ดึงค่ารหัสผ่านจาก Entry
+        url = f'rtsp://{name}:{password}@{global_ip_camera_url}:554/{global_selected_quality}'
+        print("Address:", url)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+def exit_program():
+    if messagebox.askokcancel("Exit", "Do you really want to exit?"):
+        root.destroy()  # ปิดหน้าต่างหลัก
+
+def credit():
+    messagebox.showinfo("Credit", "Credits: Your Name")
+
+def change_appearance_mode_event(new_appearance_mode: str):
+    ctk.set_appearance_mode(new_appearance_mode)
+
+def Main_window():
+    ctk.set_appearance_mode("Light")
+    root.title("ระบบความปลอดภัย")
+    root.geometry("1000x700")
+    root.resizable(False, False)
+
+    # Image paths
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
+    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130))
+    logo_BG_image = ctk.CTkImage(Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(1000, 1000))
+
+    # Background
+    bg_image_label = ctk.CTkLabel(root, text="", image=logo_BG_image)
+    bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)
+    bg_image_label.lower()
+
+    # Main container frame
+    main_container = ctk.CTkFrame(root, fg_color=("#ffffff", "#01061d"))
+    main_container.pack(fill="both", expand=True, padx=20, pady=20)
+
+    # Header frame with gradient background
+    header_frame = ctk.CTkFrame(main_container, corner_radius=15, fg_color=("#ffffff", "#01061d"), height=150)
+    header_frame.pack(fill="x", pady=(0, 20))
+    header_frame.pack_propagate(False)
+
+    # Logo layout
+    logo_container = ctk.CTkFrame(header_frame, fg_color="transparent")
+    logo_container.pack(fill="x", padx=20, pady=10)
+
+    navigation_frame_label_KMITL = ctk.CTkLabel(
+        logo_container, 
+        text="", 
+        image=logo_KMITL_image,
+        fg_color=("#ffffff"),
+        corner_radius=15
+    )
+    navigation_frame_label_KMITL.pack(side="left", padx=(0, 20))
+
+    logo_rie_label = ctk.CTkLabel(
+        logo_container,
+        text="",
+        image=logo_RIE_image,
+        fg_color=("#ffffff"),
+        corner_radius=15
+    )
+    logo_rie_label.pack(side="left", padx=(0, 20))
+
+    text_container = ctk.CTkFrame(logo_container, fg_color="transparent")
+    text_container.pack(side="left", fill="both", expand=True)
+
+    text_rie_label = ctk.CTkLabel(
+        text_container,
+        text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบังวิทยาเขตชุมพรเขตรอุดมศักดิ์",
+        font=ctk.CTkFont(family="FC Minimal", size=21, weight="bold"),
+        justify="left",
+        text_color=("#E35205", "#F9FFFC")
+    )
+    text_rie_label.pack(anchor="w",pady=(50, 10))
+
+    subtitle_label = ctk.CTkLabel(
+        text_container,
+        text="Robotics and Intelligent Electronics Engineering",
+        font=ctk.CTkFont(family="FC Minimal", size=21, weight="bold"),
+        justify="left",
+        text_color=("#E35205", "#F9FFFC")
+    )
+    subtitle_label.pack(anchor="w")
+
+    # Menu frame with glass effect
+    menu_frame = ctk.CTkFrame(
+        main_container,
+        corner_radius=20,
+        fg_color=("#ffffff", "#1D1B26"),
+        border_width=2,
+        border_color=("#333333", "#F9FFFC")
+    )
+    menu_frame.pack(pady=20, padx=100)
+
+    # Title
+    logo_label = ctk.CTkLabel(
+        menu_frame,
+        text="ระบบความปลอดภัย",
+        font=ctk.CTkFont(family="FC Minimal", size=48, weight="bold"),
+        text_color= '#E35205'
+    )
+    logo_label.pack(padx=40, pady=30)
+
+    # Buttons
+    button_style = {
+        "height": 40,
+        "width": 200,
+        "corner_radius": 10,
+        "font": ctk.CTkFont(family="FC Minimal",size=16, weight="bold"),
+        "border_width": 2,
+        "text_color" : "#F9FFFC"
+    }
+
+    start_button = ctk.CTkButton(
+        menu_frame,
+        text="Start",
+        fg_color=("#E35205", "#C24504"),
+        hover_color="#45a049",
+        border_color="#333333",
+        command=start,
+        **button_style
+    )
+    start_button.pack(pady=10)
+
+    face_rec_button = ctk.CTkButton(
+        menu_frame,
+        text="Face Recognition",
+        fg_color=("#E35205", "#C24504"),
+        hover_color="#1976D2",
+        border_color="#333333",
+        command=face_recording,
+        **button_style
+    )
+    face_rec_button.pack(pady=10)
+
+    setting_button = ctk.CTkButton(
+        menu_frame,
+        text="Setting",
+        fg_color=("#E35205", "#C24504"),
+        hover_color="#FFA000",
+        border_color="#333333",
+        command=setting,
+        **button_style
+    )
+    setting_button.pack(pady=10)
+
+    credit_button = ctk.CTkButton(
+        menu_frame,
+        text="Credit",
+        fg_color=("#E35205", "#C24504"),
+        hover_color="#757575",
+        border_color="#333333",
+        command=credit,
+        **button_style
+    )
+    credit_button.pack(pady=10)
+
+    exit_button = ctk.CTkButton(
+        menu_frame,
+        text="Exit",
+        fg_color=("#E35205", "#C24504"),
+        hover_color="#d32f2f",
+        border_color="#333333",
+        command=exit_program,
+        **button_style
+    )
+    exit_button.pack(pady=(10, 30))
+    # Add labels and buttons
+
+    root.mainloop()
+
+Main_window()
+
+
+

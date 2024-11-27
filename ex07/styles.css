@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-image: url('images/bg_gradient.jpg');
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+.header {
+    margin-bottom: 20px;
+}
+
+.logo {
+    height: 50px;
+    vertical-align: middle;
+    margin: 10px;
+}
+
+.menu h1 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    width: 100%;
+}
+
+.btn {
+    width: 70%;
+    padding: 15px;
+    font-size: 16px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.btn.green {
+    background-color: #4CAF50;
+}
+
+.btn.blue {
+    background-color: #2196F3;
+}
+
+.btn.yellow {
+    background-color: #FFC107;
+}
+
+.btn.grey {
+    background-color: #9E9E9E;
+}
+
+.btn.red {
+    background-color: #F44336;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
