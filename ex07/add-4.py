@@ -20,8 +20,8 @@ def setup_main_window():
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
     
     # Load images
-    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
-    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130))
+    logo_KMITL_image = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(100, 100))
+    logo_RIE_image = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(100, 100))
     
     # Logo frame
     logo_frame = ctk.CTkFrame(Start_window)
@@ -39,27 +39,27 @@ def setup_main_window():
     
     # Video frame container
     video_container = ctk.CTkFrame(Start_window)
-    video_container.pack(fill="both", expand=True, pady=20)
+    video_container.pack(fill="both", expand=True)
 
     # Top container for 3 frames
     top_container = ctk.CTkFrame(video_container)
     top_container.pack(fill="x", expand=True, pady=(10, 5))
 
     # Frame C - Top Left
-    frame_c = ctk.CTkFrame(top_container, width=300, height=250, fg_color="white", corner_radius=10)
+    frame_c = ctk.CTkFrame(top_container, width=300, height=200, fg_color="white", corner_radius=10)
     frame_c.pack(side="left", expand=True, anchor="center", pady=5, padx=5)
 
-    label_c = ctk.CTkLabel(frame_c, text="", image=logo_KMITL_image, width=250, height=240)
+    label_c = ctk.CTkLabel(frame_c, text="", image=logo_KMITL_image, width=250, height=190)
     label_c.pack(side="top", expand=True, pady=(10, 0))
 
     buttonc = ctk.CTkButton(frame_c, text="เปิดกล้อง 1")
     buttonc.pack(side="bottom", pady=(10, 10))
 
     # Frame D - Top Center
-    frame_d = ctk.CTkFrame(top_container, width=300, height=250, fg_color="white", corner_radius=10)
+    frame_d = ctk.CTkFrame(top_container, width=300, height=200, fg_color="white", corner_radius=10)
     frame_d.pack(side="left", expand=True, anchor="center", pady=5, padx=5)
 
-    label_d = ctk.CTkLabel(frame_d, text="", image=logo_KMITL_image, width=250, height=240)
+    label_d = ctk.CTkLabel(frame_d, text="", image=logo_KMITL_image, width=250, height=190)
     label_d.pack(side="top", expand=True, pady=(10, 0))
 
     buttond = ctk.CTkButton(frame_d, text="เปิดกล้อง 2")
@@ -70,22 +70,21 @@ def setup_main_window():
     bottom_container.pack(fill="x", expand=True, pady=(5, 10))
 
     # Frame E - Top Right
-    frame_e = ctk.CTkFrame(bottom_container, width=300, height=250, fg_color="white", corner_radius=10)
+    frame_e = ctk.CTkFrame(bottom_container, width=300, height=200, fg_color="white", corner_radius=10)
     frame_e.pack(side="left", expand=True, anchor="center", pady=5, padx=5)
 
-    label_e = ctk.CTkLabel(frame_e, text="", image=logo_KMITL_image, width=250, height=240)
+    label_e = ctk.CTkLabel(frame_e, text="", image=logo_KMITL_image, width=250, height=190)
     label_e.pack(side="top", expand=True, pady=(10, 0))
 
     buttone = ctk.CTkButton(frame_e, text="เปิดกล้อง 3")
     buttone.pack(side="bottom", pady=(10, 10))
 
 
-
     # Frame F - Bottom Left
-    frame_f = ctk.CTkFrame(bottom_container, width=300, height=250, fg_color="white", corner_radius=10)
+    frame_f = ctk.CTkFrame(bottom_container, width=300, height=200, fg_color="white", corner_radius=10)
     frame_f.pack(side="left", expand=True, anchor="center", pady=5, padx=5)
 
-    label_f = ctk.CTkLabel(frame_f, text="", image=logo_KMITL_image, width=250, height=240)
+    label_f = ctk.CTkLabel(frame_f, text="", image=logo_KMITL_image, width=250, height=190)
     label_f.pack(side="top", expand=True, pady=(10, 0))
 
     buttonf = ctk.CTkButton(frame_f, text="เปิดกล้อง 4")
@@ -102,6 +101,8 @@ def setup_main_window():
     # Back button
     back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
     back_button.pack(side="left", padx=10, pady=10)
+
+
 
 def add_camera_frames():
     num_frames = simpledialog.askinteger("เพิ่มกล้อง", "ใส่จำนวนกล้อง (1-4):", minvalue=1, maxvalue=4)
