@@ -71,8 +71,6 @@ def setup_main_window():
     buttone = ctk.CTkButton(frame_e, text="เปิดกล้อง 5")
     buttone.pack(side="bottom", pady=(10, 10))
 
-
-
     # Menu frame
     menu_frame = ctk.CTkFrame(Start_window, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)

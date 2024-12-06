@@ -14,9 +14,9 @@ def clear_window():
         widget.destroy()
 
 
-def additional_Detection_1():
+def Additional_Detection_1():
     clear_window()
-    Start_window.title("Main Detection")
+    Start_window.title("Additional Detection")
 
     screen_width = Start_window.winfo_screenwidth() / 2
     screen_height = Start_window.winfo_screenheight() / 2
@@ -584,7 +584,7 @@ def add_camera_frames():
     )
 
     if num_frames == 1:
-        additional_Detection_1()
+        Additional_Detection_1()
     elif num_frames == 2:
         additional_Detection_2()
     if num_frames == 3:
@@ -596,7 +596,7 @@ def add_camera_frames():
 
 
 def start():
-    additional_Detection_1()
+    Additional_Detection_1()
     Start_window.mainloop()
 
 
