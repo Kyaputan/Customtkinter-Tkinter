@@ -233,18 +233,33 @@ def sitting():
 
     second_frame = ctk.CTkFrame(root, corner_radius=0, fg_color="transparent")
     second_frame.pack(fill="both", expand=True)
+    
+    tabview = ctk.CTkTabview(second_frame,corner_radius=5)
+    tabview.pack(padx=(5, 5), pady=(10, 10))
+    tabview.add("Camera 1")
+    tabview.add("Camera 2")
+    tabview.add("Camera 3")
+    tabview.add("Camera 4")
+    tabview.add("Camera 5")
+    tabview.add("Camera 6")
 
-    camara_data_frame = ctk.CTkFrame(second_frame, corner_radius=0)
-    camara_data_frame.pack(fill="y", padx=10, pady=10)
 
-    label_Head = ctk.CTkLabel(camara_data_frame, text="ลงข้อมูลเชื่อมต่อระบบ RTSP", font=ctk.CTkFont(size=16, weight="bold"))
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 1"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 2"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 3"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 4"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 5"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
+    label_Head.pack(padx=10, pady=5)
+    label_Head = ctk.CTkLabel(tabview.tab("Camera 6"), text="ลงข้อมูลเชื่อมต่อระบบ", font=ctk.CTkFont(size=24, weight="bold"))
     label_Head.pack(padx=10, pady=5)
 
-    # Define a fixed width for labels to align fields properly
-    label_width = 80  # Adjust width to balance text and icons
+    label_width = 80 
 
-    # Create frame for name entry and label
-    name_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    name_frame = ctk.CTkFrame(tabview.tab("Camera 1"), fg_color="transparent")
     name_frame.pack(padx=10, pady=5, fill="x")
 
     label_name = ctk.CTkLabel(name_frame, text=" ลงชื่อ", image=images_logos["user_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
@@ -253,8 +268,7 @@ def sitting():
     entry_name_sitting = ctk.CTkEntry(name_frame, placeholder_text="Enter name")
     entry_name_sitting.pack(side="left", fill="x", expand=True, padx=10)
 
-    # Create frame for password entry and label
-    password_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    password_frame = ctk.CTkFrame(tabview.tab("Camera 1"), fg_color="transparent")
     password_frame.pack(padx=10, pady=5, fill="x")
 
     label_password = ctk.CTkLabel(password_frame, text=" รหัสผ่าน", image=images_logos["lock_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
@@ -264,7 +278,7 @@ def sitting():
     entry_password.pack(side="left", fill="x", expand=True, padx=10)
 
     # Create frame for "Open Address" button and label
-    button_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 1"), fg_color="transparent")
     button_frame.pack(padx=10, pady=5, fill="x")
 
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
@@ -274,7 +288,7 @@ def sitting():
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
 
     # Create frame for port option menu and label
-    port_frame = ctk.CTkFrame(camara_data_frame, fg_color="transparent")
+    port_frame = ctk.CTkFrame(tabview.tab("Camera 1"), fg_color="transparent")
     port_frame.pack(padx=10, pady=5, fill="x")
 
     label_port = ctk.CTkLabel(port_frame, text=" คุณภาพ", image=images_logos["sitting_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
@@ -286,8 +300,84 @@ def sitting():
     optionmenu_quality_values.pack(side="left", fill="x", expand=True, padx=10)
 
     # Agree button
-    agree_button = ctk.CTkButton(camara_data_frame, text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
-    agree_button.pack(pady=10)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 1"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+
+
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 2"), fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+    
+    agree_button = ctk.CTkButton(tabview.tab("Camera 2"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 3"), fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+    
+    agree_button = ctk.CTkButton(tabview.tab("Camera 3"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+
+
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 4"), fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+
+    agree_button = ctk.CTkButton(tabview.tab("Camera 4"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+
+
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 5"), fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+    
+    agree_button = ctk.CTkButton(tabview.tab("Camera 5"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+
+
+    button_frame = ctk.CTkFrame(tabview.tab("Camera 6"), fg_color="transparent")
+    button_frame.pack(padx=10, pady=5, fill="x")
+    
+    label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
+    label_button.pack(side="left", padx=10, pady=5)
+
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button.pack(side="left", fill="x", expand=True, padx=10)
+    
+    agree_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button.pack(pady=10,fill="x", expand=True,padx=40)
+
+    
+    
+    
+    
+    
+    
 
     label_port = ctk.CTkLabel(second_frame, text="โดยทั่วไปแล้ว RTSP Link จะมีหน้าตาดังนี้ \n rtsp://Rachata:123456@198.162.0.100:554/stream1 \n โดยที่แยกได้เป็นดังนี้ \n rtsp:// ชื่อผู้ใช้ : รหัสผู้ใช้ @ ip_camera: port(554) / คุณภาพ" , font=ctk.CTkFont(size=14))
     label_port.pack( padx=10, pady=5)
@@ -335,3 +425,5 @@ def input_dialog_Address_2():
         print("CTkInputDialog Address 2:", global_ip_camera_url)
     else:
         print("No address input received")
+        
+        
