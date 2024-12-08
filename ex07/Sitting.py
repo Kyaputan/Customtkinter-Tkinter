@@ -4,14 +4,27 @@ from PIL import Image
 from tkinter import messagebox
 
 # Declare global variables for frames
-url = ""
-global_ip_camera_url = ""
+# url = "" แก้เป็น url_1
+ip_camera_url_1 = ""
 All_name = ["captain","tee","point"] 
 # New
+ip_camera_url_2 = ""
+ip_camera_url_3 = ""
+ip_camera_url_4 = ""
+ip_camera_url_5 = ""
+ip_camera_url_6 = ""
+
+url_1 =""
+url_2 =""
+url_3 =""
+url_4 =""
+url_5 =""
+url_6 =""
+
 home_frame = None
 second_frame = None
 Third_frame = None
-entry_name_sitting = ""
+entry_name = ""
 entry_password = ""
 url_now = ""
 global_selected_quality = ""
@@ -20,7 +33,6 @@ images_logos ={}
 def quality_selected(selected_port):
     global global_selected_quality
     global_selected_quality = selected_port
-
     # ตรวจสอบค่าที่เลือก
     if selected_port == "เลือกคุณภาพ":
         print("Selected quality: ไม่มีคุณภาพที่เลือก")
@@ -32,31 +44,177 @@ def quality_selected(selected_port):
         print("Selected quality: stream2")
         global_selected_quality = "stream2"  # อัปเดตค่า
 
-def input_dialog_Address_2():
-    global global_ip_camera_url
+def input_dialog_Address_1():
+    global ip_camera_url_1
     dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
-    address_2 = dialog.get_input()
-    if address_2:
-        global_ip_camera_url = address_2
-        print("Address :", global_ip_camera_url)
+    address_1 = dialog.get_input()
+    if address_1:
+        ip_camera_url_1 = address_1
+        print("Address :", ip_camera_url_1)
     else:
         print("No address input received")
 
-def combine_button():
-    global url, entry_name_sitting, entry_password, global_selected_quality, url_now 
-    if global_ip_camera_url and entry_name_sitting and entry_password:
+def input_dialog_Address_2():
+    global ip_camera_url_2
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_2 = dialog.get_input()
+    if address_2:
+        ip_camera_url_2 = address_2
+        print("Address :", ip_camera_url_2)
+    else:
+        print("No address input received")
+
+def input_dialog_Address_3():
+    global ip_camera_url_3
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_3 = dialog.get_input()
+    if address_3:
+        ip_camera_url_3 = address_3
+        print("Address :", ip_camera_url_3)
+    else:
+        print("No address input received")
+
+def input_dialog_Address_4():
+    global ip_camera_url_4
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_4 = dialog.get_input()
+    if address_4:
+        ip_camera_url_4 = address_4
+        print("Address :", ip_camera_url_4)
+    else:
+        print("No address input received")
+
+def input_dialog_Address_5():
+    global ip_camera_url_5
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_5 = dialog.get_input()
+    if address_5:
+        ip_camera_url_5 = address_5
+        print("Address :", ip_camera_url_5)
+    else:
+        print("No address input received")
+
+def input_dialog_Address_6():
+    global ip_camera_url_6
+    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
+    address_6 = dialog.get_input()
+    if address_6:
+        ip_camera_url_6 = address_6
+        print("Address :", ip_camera_url_6)
+    else:
+        print("No address input received")
+
+# def get_credentials(entry_name, entry_password):
+#     name = entry_name.get()
+#     password = entry_password.get()
+#     return name, password
+
+
+
+def combine_button_1():
+    global url_1, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_1 and entry_name and entry_password:
         if not global_selected_quality:
             global_selected_quality = "stream2"
-        name = entry_name_sitting.get()  
+        name = entry_name.get()  
         password = entry_password.get() 
-        url = f'rtsp://{name}:{password}@{global_ip_camera_url}:554/{global_selected_quality}'
-        print("Address:", url)
+        url_1 = f'rtsp://{name}:{password}@{ip_camera_url_1}:554/{global_selected_quality}'
+        print("Address:", url_1)
         
         # อัปเดตข้อความใน url_now เพื่อแสดง URL
-        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url}")
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_1}")
     else:
         print("No address input received")
         messagebox.showerror("Error", "No address input received")
+
+def combine_button_2():
+    global url_2, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_2 and entry_name and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name.get()  
+        password = entry_password.get() 
+        url_2 = f'rtsp://{name}:{password}@{ip_camera_url_2}:554/{global_selected_quality}'
+        print("Address:", url_2)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_2}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+def combine_button_3():
+    global url_3, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_3 and entry_name and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name.get()  
+        password = entry_password.get() 
+        url_3 = f'rtsp://{name}:{password}@{ip_camera_url_3}:554/{global_selected_quality}'
+        print("Address:", url_3)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_3}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+def combine_button_4():
+    global url_4, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_4 and entry_name and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name.get()  
+        password = entry_password.get() 
+        url_4 = f'rtsp://{name}:{password}@{ip_camera_url_4}:554/{global_selected_quality}'
+        print("Address:", url_4)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_4}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+def combine_button_5():
+    global url_5, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_5 and entry_name and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name.get()  
+        password = entry_password.get() 
+        url_5 = f'rtsp://{name}:{password}@{ip_camera_url_5}:554/{global_selected_quality}'
+        print("Address:", url_5)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_5}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+def combine_button_6():
+    global url_6, entry_name, entry_password, global_selected_quality, url_now 
+    if ip_camera_url_6 and entry_name and entry_password:
+        if not global_selected_quality:
+            global_selected_quality = "stream2"
+        name = entry_name.get()  
+        password = entry_password.get() 
+        url_6 = f'rtsp://{name}:{password}@{ip_camera_url_6}:554/{global_selected_quality}'
+        print("Address:", url_6)
+        
+        # อัปเดตข้อความใน url_now เพื่อแสดง URL
+        url_now.configure(text=f"Link RTSP ของคุณคือ \n {url_6}")
+    else:
+        print("No address input received")
+        messagebox.showerror("Error", "No address input received")
+
+# def show_address():
+#     global url_6 , url_5 , url_4 ,url_3 , url_2 , url_1
+#     print(f'url_1 {url_1}')
+#     print(f'url_2 {url_2}')
+#     print(f'url_3 {url_3}')
+#     print(f'url_4 {url_4}')
+#     print(f'url_5 {url_5}')
+#     print(f'url_6 {url_6}')
 
 
 def change_appearance_mode_event(new_appearance_mode: str):
@@ -121,7 +279,7 @@ def image_logo():
 
 
 def sitting():
-    global home_frame, second_frame  , Third_frame ,entry_name_sitting , entry_password , url , url_now
+    global home_frame, second_frame  , Third_frame ,entry_name , entry_password , url_1 , url_now
     ctk.set_appearance_mode("Light")
     root = ctk.CTk()
     root.title("image_example.py")
@@ -265,8 +423,8 @@ def sitting():
     label_name = ctk.CTkLabel(name_frame, text=" ลงชื่อ", image=images_logos["user_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_name.pack(side="left", padx=10, pady=5)
 
-    entry_name_sitting = ctk.CTkEntry(name_frame, placeholder_text="Enter name")
-    entry_name_sitting.pack(side="left", fill="x", expand=True, padx=10)
+    entry_name = ctk.CTkEntry(name_frame, placeholder_text="Enter name")
+    entry_name.pack(side="left", fill="x", expand=True, padx=10)
 
     password_frame = ctk.CTkFrame(tabview.tab("Camera 1"), fg_color="transparent")
     password_frame.pack(padx=10, pady=5, fill="x")
@@ -284,7 +442,7 @@ def sitting():
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_button.pack(side="left", padx=10, pady=5)
 
-    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_1)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
 
     # Create frame for port option menu and label
@@ -300,7 +458,7 @@ def sitting():
     optionmenu_quality_values.pack(side="left", fill="x", expand=True, padx=10)
 
     # Agree button
-    agree_button = ctk.CTkButton(tabview.tab("Camera 1"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 1"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_1)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
 
@@ -314,7 +472,7 @@ def sitting():
     string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
     
-    agree_button = ctk.CTkButton(tabview.tab("Camera 2"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 2"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_2)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
 
@@ -324,10 +482,10 @@ def sitting():
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_button.pack(side="left", padx=10, pady=5)
 
-    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_3)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
     
-    agree_button = ctk.CTkButton(tabview.tab("Camera 3"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 3"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_3)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
 
@@ -338,10 +496,10 @@ def sitting():
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_button.pack(side="left", padx=10, pady=5)
 
-    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_4)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
 
-    agree_button = ctk.CTkButton(tabview.tab("Camera 4"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 4"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_4)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
 
@@ -352,10 +510,10 @@ def sitting():
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_button.pack(side="left", padx=10, pady=5)
 
-    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_5)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
     
-    agree_button = ctk.CTkButton(tabview.tab("Camera 5"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 5"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_5)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
 
@@ -366,23 +524,19 @@ def sitting():
     label_button = ctk.CTkLabel(button_frame, text=" IP", image=images_logos["address_logo"], compound="left", width=label_width, anchor="w", font=ctk.CTkFont(size=14))
     label_button.pack(side="left", padx=10, pady=5)
 
-    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_2)
+    string_input_button = ctk.CTkButton(button_frame, text="Open Address",command=input_dialog_Address_6)
     string_input_button.pack(side="left", fill="x", expand=True, padx=10)
     
-    agree_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button)
+    agree_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_6)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
 
-    
-    
-    
-    
-    
-    
+    # show_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="green", hover_color="#46b842",command=show_address)
+    # show_button.pack(pady=10,fill="x", expand=True,padx=40)
 
     label_port = ctk.CTkLabel(second_frame, text="โดยทั่วไปแล้ว RTSP Link จะมีหน้าตาดังนี้ \n rtsp://Rachata:123456@198.162.0.100:554/stream1 \n โดยที่แยกได้เป็นดังนี้ \n rtsp:// ชื่อผู้ใช้ : รหัสผู้ใช้ @ ip_camera: port(554) / คุณภาพ" , font=ctk.CTkFont(size=14))
     label_port.pack( padx=10, pady=5)
 
-    url_now = ctk.CTkLabel(second_frame, text=f" Link RTSP ของคุณคือ \n {url}" , font=ctk.CTkFont(size=14))
+    url_now = ctk.CTkLabel(second_frame, text=f" Link RTSP ของคุณคือ \n {url_1}" , font=ctk.CTkFont(size=14))
     url_now.pack( padx=10, pady=5)
 
     Third_frame = ctk.CTkFrame(root, corner_radius=0, fg_color="transparent")
@@ -410,20 +564,6 @@ def sitting():
     show_frame("home")
 
     root.mainloop()
-
-
         
 sitting()
 
-
-def input_dialog_Address_2():
-    global global_ip_camera_url
-    dialog = ctk.CTkInputDialog(text="Type in a number of IP Address \n example : 192.168.0.102" , title="Address")
-    address_2 = dialog.get_input()
-    if address_2:
-        global_ip_camera_url = address_2
-        print("CTkInputDialog Address 2:", global_ip_camera_url)
-    else:
-        print("No address input received")
-        
-        

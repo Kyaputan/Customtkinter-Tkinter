@@ -5,24 +5,24 @@ import tkinter as tk
 from tkinter import simpledialog
 
 # Create main window
-Start_window = ctk.CTk()
+Additional = ctk.CTk()
 
 
 def clear_window():
-    """Clears all widgets from the Start_window."""
-    for widget in Start_window.winfo_children():
+    """Clears all widgets from the Additional."""
+    for widget in Additional.winfo_children():
         widget.destroy()
 
 
 def Additional_Detection_1():
     clear_window()
-    Start_window.title("Additional Detection")
+    Additional.title("Additional Detection")
 
-    screen_width = Start_window.winfo_screenwidth() / 2
-    screen_height = Start_window.winfo_screenheight() / 2
+    screen_width = Additional.winfo_screenwidth() / 2
+    screen_height = Additional.winfo_screenheight() / 2
 
     # Set window size to full screen
-    Start_window.geometry(f"{screen_width}x{screen_height}")
+    Additional.geometry(f"{screen_width}x{screen_height}")
 
     # Get image directory path
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -36,7 +36,7 @@ def Additional_Detection_1():
     )
 
     # Logo frame
-    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame = ctk.CTkFrame(Additional)
     logo_frame.pack(fill="x", pady=(0, 10))
 
     navigation_frame_label_KMITL = ctk.CTkLabel(
@@ -63,7 +63,7 @@ def Additional_Detection_1():
     text_rie_label.pack(side="left", padx=10, pady=(10, 10))
 
     # Video frame container
-    video_container = ctk.CTkFrame(Start_window)
+    video_container = ctk.CTkFrame(Additional)
     video_container.pack(fill="both", expand=True, pady=20)
 
     # Frame for the video content
@@ -83,7 +83,7 @@ def Additional_Detection_1():
     button1.pack(side="bottom", pady=(10, 10))
 
     # Menu frame
-    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame = ctk.CTkFrame(Additional, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)
 
     # Add Camera Frames button
@@ -99,13 +99,13 @@ def Additional_Detection_1():
 
 def additional_Detection_2():
     clear_window()
-    Start_window.title("Main Detection")
+    Additional.title("Main Detection")
 
-    screen_width = Start_window.winfo_screenwidth() / 2
-    screen_height = Start_window.winfo_screenheight() / 2
+    screen_width = Additional.winfo_screenwidth() / 2
+    screen_height = Additional.winfo_screenheight() / 2
 
     # Set window size to full screen
-    Start_window.geometry(f"{screen_width}x{screen_height}")
+    Additional.geometry(f"{screen_width}x{screen_height}")
 
     # Get image directory path
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -119,7 +119,7 @@ def additional_Detection_2():
     )
 
     # Logo frame
-    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame = ctk.CTkFrame(Additional)
     logo_frame.pack(fill="x", pady=(0, 10))
 
     navigation_frame_label_KMITL = ctk.CTkLabel(
@@ -146,7 +146,7 @@ def additional_Detection_2():
     text_rie_label.pack(side="left", padx=10, pady=(10, 10))
 
     # Video frame container
-    video_container = ctk.CTkFrame(Start_window)
+    video_container = ctk.CTkFrame(Additional)
     video_container.pack(fill="both", expand=True, pady=20)
 
     # Frame C - Left
@@ -178,7 +178,7 @@ def additional_Detection_2():
     buttond.pack(side="bottom", pady=(10, 10))
 
     # Menu frame
-    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame = ctk.CTkFrame(Additional, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)
 
     # Add Camera Frames button
@@ -194,13 +194,13 @@ def additional_Detection_2():
 
 def additional_Detection_3():
     clear_window()
-    Start_window.title("Main Detection")
+    Additional.title("Main Detection")
 
-    screen_width = Start_window.winfo_screenwidth() / 2
-    screen_height = Start_window.winfo_screenheight() / 2
+    screen_width = Additional.winfo_screenwidth() / 2
+    screen_height = Additional.winfo_screenheight() / 2
 
     # Set window size to full screen
-    Start_window.geometry(f"{screen_width}x{screen_height}")
+    Additional.geometry(f"{screen_width}x{screen_height}")
 
     # Get image directory path
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -214,7 +214,7 @@ def additional_Detection_3():
     )
 
     # Logo frame
-    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame = ctk.CTkFrame(Additional)
     logo_frame.pack(fill="x", pady=(0, 10))
 
     navigation_frame_label_KMITL = ctk.CTkLabel(
@@ -241,7 +241,7 @@ def additional_Detection_3():
     text_rie_label.pack(side="left", padx=10, pady=(10, 10))
 
     # Video frame container
-    video_container = ctk.CTkFrame(Start_window)
+    video_container = ctk.CTkFrame(Additional)
     video_container.pack(fill="both", expand=True, pady=20)
 
     # Frame C - Left
@@ -287,7 +287,7 @@ def additional_Detection_3():
     buttone.pack(side="bottom", pady=(10, 10))
 
     # Menu frame
-    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame = ctk.CTkFrame(Additional, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)
 
     # Add Camera Frames button
@@ -303,13 +303,13 @@ def additional_Detection_3():
 
 def additional_Detection_4():
     clear_window()
-    Start_window.title("Main Detection")
+    Additional.title("Main Detection")
 
-    screen_width = Start_window.winfo_screenwidth() / 2
-    screen_height = Start_window.winfo_screenheight() / 2
+    screen_width = Additional.winfo_screenwidth() / 2
+    screen_height = Additional.winfo_screenheight() / 2
 
     # Set window size to full screen
-    Start_window.geometry(f"{screen_width}x{screen_height}")
+    Additional.geometry(f"{screen_width}x{screen_height}")
 
     # Get image directory path
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -323,7 +323,7 @@ def additional_Detection_4():
     )
 
     # Logo frame
-    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame = ctk.CTkFrame(Additional)
     logo_frame.pack(fill="x", pady=(0, 10))
 
     navigation_frame_label_KMITL = ctk.CTkLabel(
@@ -350,7 +350,7 @@ def additional_Detection_4():
     text_rie_label.pack(side="left", padx=10, pady=(10, 10))
 
     # Video frame container
-    video_container = ctk.CTkFrame(Start_window)
+    video_container = ctk.CTkFrame(Additional)
     video_container.pack(fill="both", expand=True)
 
     # Top container for 3 frames
@@ -418,7 +418,7 @@ def additional_Detection_4():
     buttonf.pack(side="bottom", pady=(10, 10))
 
     # Menu frame
-    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame = ctk.CTkFrame(Additional, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)
 
     # Add Camera Frames button
@@ -434,13 +434,13 @@ def additional_Detection_4():
 
 def additional_Detection_5():
     clear_window()
-    Start_window.title("Main Detection")
+    Additional.title("Main Detection")
 
-    screen_width = Start_window.winfo_screenwidth() / 2
-    screen_height = Start_window.winfo_screenheight() / 2
+    screen_width = Additional.winfo_screenwidth() / 2
+    screen_height = Additional.winfo_screenheight() / 2
 
     # Set window size to full screen
-    Start_window.geometry(f"{screen_width}x{screen_height}")
+    Additional.geometry(f"{screen_width}x{screen_height}")
 
     # Get image directory path
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -454,7 +454,7 @@ def additional_Detection_5():
     )
 
     # Logo frame
-    logo_frame = ctk.CTkFrame(Start_window)
+    logo_frame = ctk.CTkFrame(Additional)
     logo_frame.pack(fill="x", pady=(0, 10))
 
     navigation_frame_label_KMITL = ctk.CTkLabel(
@@ -481,7 +481,7 @@ def additional_Detection_5():
     text_rie_label.pack(side="left", padx=10, pady=(10, 10))
 
     # Video frame container
-    video_container = ctk.CTkFrame(Start_window)
+    video_container = ctk.CTkFrame(Additional)
     video_container.pack(fill="both", expand=True)
 
     # Top container for 3 frames
@@ -563,7 +563,7 @@ def additional_Detection_5():
     buttong.pack(side="bottom", pady=(10, 10))
 
     # Menu frame
-    menu_frame = ctk.CTkFrame(Start_window, height=100)
+    menu_frame = ctk.CTkFrame(Additional, height=100)
     menu_frame.pack(pady=5, fill="y", side="top", padx=10)
 
     # Add Camera Frames button
@@ -597,7 +597,7 @@ def add_camera_frames():
 
 def start():
     Additional_Detection_1()
-    Start_window.mainloop()
+    Additional.mainloop()
 
 
 start()
