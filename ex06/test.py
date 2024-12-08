@@ -288,7 +288,6 @@ def face_recog(frame):
 
     return frame
 
-
 def show_frame_a(label_a, detection_mode):
     global running_a, cap_a
     if running_a:
@@ -326,8 +325,7 @@ def show_frame_b(label_b, detection_mode, url):
                 print("Failed to open camera")
                 return
 
-            # ล้างบัฟเฟอร์: ใช้ grab ข้ามเฟรมเก่า ๆ
-            for _ in range(5):  # ข้าม 5 เฟรมที่เก่าในบัฟเฟอร์
+            for _ in range(5):
                 cap_b.grab()
 
             ret, frame = cap_b.read()
@@ -538,8 +536,8 @@ def start():
     button3.pack(side="left", padx=10, pady=10)
 
     # Detection Mode
-    detection_mode = tk.StringVar(value="None")
-    modes = ["None", "Face_Recognition", "YOLO", "Both"]
+    detection_mode = tk.StringVar(value="")
+    modes = ["Face_Recognition", "YOLO", "Both"]
 
     # Frame for radio buttons
     radio_frame = ctk.CTkFrame(Start_window, corner_radius=10)

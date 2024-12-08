@@ -109,8 +109,6 @@ def input_dialog_Address_6():
 #     password = entry_password.get()
 #     return name, password
 
-
-
 def combine_button_1():
     global url_1, entry_name, entry_password, global_selected_quality, url_now 
     if ip_camera_url_1 and entry_name and entry_password:
@@ -460,7 +458,6 @@ def sitting():
     # Agree button
     agree_button = ctk.CTkButton(tabview.tab("Camera 1"), text="agree", fg_color="green", hover_color="#46b842",command=combine_button_1)
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
-
 
 
     button_frame = ctk.CTkFrame(tabview.tab("Camera 2"), fg_color="transparent")
