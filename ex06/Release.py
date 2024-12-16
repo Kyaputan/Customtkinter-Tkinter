@@ -23,7 +23,7 @@ model_path = "CodeCit/Collet/Model/best.pt"
 model = YOLO(r"CodeCit\Lab4-Customtkinter-Tkinter\ex06\model.pt")
 global_ip_camera_url = ""
 url = ""
-global selected_value, cap_a, cap_b, cap_r, entry_name
+global selected_value, cap_a, cap_b, cap_r
 snake_count = 0
 personfall_count = 0
 vomit_count = 0
@@ -34,11 +34,11 @@ known_face_images = []
 known_face_encodings = []
 known_face_names = []
 All_name = []
-last_known_notified_time = 0  # Store the last notification time for known faces
-last_unknown_notified_time = 0  # Store the last notification time for unknown faces
-unknown_frame_count = 0  # Count of frames with unknown faces
-known_frame_count = 0  # Count of frames with known faces
-lock = threading.Lock()  # Lock for thread safety
+last_known_notified_time = 0 
+last_unknown_notified_time = 0  
+unknown_frame_count = 0  
+known_frame_count = 0  
+lock = threading.Lock()  
 frame_counter = 0
 interval = 5
 folder_path = "CodeCit/Lab4-Customtkinter-Tkinter/ex06/Face_reg"

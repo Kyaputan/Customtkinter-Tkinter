@@ -277,7 +277,7 @@ def image_logo():
 
 
 def sitting():
-    global home_frame, second_frame  , Third_frame ,entry_name , entry_password , url_1 , url_now
+    global home_frame, second_frame  , Third_frame ,entry_name , entry_password  , url_now
     ctk.set_appearance_mode("Light")
     root = ctk.CTk()
     root.title("image_example.py")

@@ -577,11 +577,8 @@ def additional_Detection_5():
 
 
 def add_camera_frames():
-
     num_frames = simpledialog.askinteger(
-        "เพิ่มกล้อง", "ใส่จำนวนกล้อง (1-5):", minvalue=1, maxvalue=5
-    )
-
+        "เพิ่มกล้อง", "ใส่จำนวนกล้อง (1-5):", minvalue=1, maxvalue=5)
     if num_frames == 1:
         Additional_Detection_1()
     elif num_frames == 2:
@@ -592,7 +589,6 @@ def add_camera_frames():
         additional_Detection_4()
     if num_frames == 5:
         additional_Detection_5()
-
 
 def start():
     Additional_Detection_1()
