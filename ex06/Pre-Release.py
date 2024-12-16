@@ -1586,7 +1586,7 @@ def Additional_Detection_1():
     add_camera_button.pack(side="left", padx=10, pady=10)
 
     # Back button
-    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
+    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15 ,command=exit_Additional)
     back_button.pack(side="left", padx=10, pady=10)
 
 
@@ -1681,7 +1681,7 @@ def additional_Detection_2():
     add_camera_button.pack(side="left", padx=10, pady=10)
 
     # Back button
-    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
+    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15 ,command=exit_Additional)
     back_button.pack(side="left", padx=10, pady=10)
 
 
@@ -1790,7 +1790,7 @@ def additional_Detection_3():
     add_camera_button.pack(side="left", padx=10, pady=10)
 
     # Back button
-    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
+    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15 ,command=exit_Additional)
     back_button.pack(side="left", padx=10, pady=10)
 
 
@@ -1921,7 +1921,7 @@ def additional_Detection_4():
     add_camera_button.pack(side="left", padx=10, pady=10)
 
     # Back button
-    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
+    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15 ,command=exit_Additional)
     back_button.pack(side="left", padx=10, pady=10)
 
 
@@ -2066,7 +2066,7 @@ def additional_Detection_5():
     add_camera_button.pack(side="left", padx=10, pady=10)
 
     # Back button
-    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15)
+    back_button = ctk.CTkButton(menu_frame, text="ย้อนกลับ", corner_radius=5, width=15 ,command=exit_Additional)
     back_button.pack(side="left", padx=10, pady=10)
 
 
@@ -2078,9 +2078,12 @@ def clear_window():
 
 
 def add_camera_frames():
+    global Additional
     num_frames = simpledialog.askinteger(
         "เพิ่มกล้อง", "ใส่จำนวนกล้อง (1-5):", minvalue=1, maxvalue=5)
     if num_frames == 1:
+        Additional.destroy()
+        Additional = None
         Additional_Detection_1()
     elif num_frames == 2:
         additional_Detection_2()
@@ -2091,7 +2094,10 @@ def add_camera_frames():
     if num_frames == 5:
         additional_Detection_5()
 
-
+def exit_Additional():
+    global Additional
+    Additional.destroy()
+    Additional = None
 
 
 Main_window()
