@@ -20,7 +20,7 @@ headers = {
 }
 root = ctk.CTk()
 model_path = "CodeCit/Collet/Model/best.pt"
-model = YOLO(r"D:\Code_python\CodeCit\Lab4-Customtkinter-Tkinter\ex06\This.pt")
+model = YOLO(r"CodeCit\Lab4-Customtkinter-Tkinter\ex06\model.pt")
 global_ip_camera_url = ""
 url = ""
 global selected_value, cap_a, cap_b, cap_r, entry_name
