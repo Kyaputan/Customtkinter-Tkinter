@@ -9,7 +9,6 @@ Additional = ctk.CTk()
 
 
 def clear_window():
-    """Clears all widgets from the Additional."""
     for widget in Additional.winfo_children():
         widget.destroy()
 

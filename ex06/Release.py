@@ -52,7 +52,45 @@ entry_name_sitting = ""
 entry_password = ""
 url_now = ""
 global_selected_quality = ""
+images_logos ={}
 
+
+def load_image():
+    global images_logos
+    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
+    images_logos["logo_BG_image"] = ctk.CTkImage(Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(1080, 1080))
+    images_logos["small_logo_KMITL_image"] = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(76, 76))
+    images_logos["logo_KMITL_image"] = ctk.CTkImage(Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130))
+    images_logos["logo_RIE_image"] = ctk.CTkImage(Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130))
+    images_logos["address_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "address-book for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "address-book for dark.png")), size=(20, 20))
+    images_logos["camera_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "camera for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "camera for dark.png")), size=(20, 20))
+    images_logos["home_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "home for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "home for dark.png")), size=(20, 20))
+    images_logos["lock_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "lock for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "lock for dark.png")), size=(20, 20))
+    images_logos["sitting_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "settings for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "settings for dark.png")), size=(20, 20))
+    images_logos["trash_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "trash for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "trash for dark.png")), size=(20, 20))
+    images_logos["user_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "user for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "user for dark.png")), size=(20, 20))
+    images_logos["video_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "video-camera-alt for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "video-camera-alt for dark.png")), size=(20, 20))
+    images_logos["mode_event_icon"]= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "contrast.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "moon-phase.png")), size=(30, 30))
+    images_logos["IP_address_logo"]= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "ip-address for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "ip-address for dark.png")), size=(20, 20))
+    images_logos["rescue_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "rescue for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "rescue for dark.png")), size=(30, 30))
+    images_logos["baby_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "baby for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "baby for dark.png")), size=(30, 30))
+    images_logos["snake_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "snake for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "snake for dark.png")), size=(30, 30))
+    images_logos["bandit_logo"] = ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "bandit for light.png")),
+                                                     dark_image=Image.open(os.path.join(image_path, "bandit for dark.png")), size=(30, 30))
+    images_logos["loupe_logo"]= ctk.CTkImage(light_image=Image.open(os.path.join(image_path, "loupe.png")), size=(30, 30))
 
 def quality_selected(selected_port):
     global global_selected_quality
@@ -406,22 +444,9 @@ def start():
     screen_width = Start_window.winfo_screenwidth() / 2
     screen_height = Start_window.winfo_screenheight() / 2
     Start_window.geometry(f"{screen_width}x{screen_height}")
-    # Get image directory path
-    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-
-    logo_KMITL_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130)
-    )
-    logo_RIE_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130)
-    )
-    logo_BG_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "bg_gradient.jpg")),
-        size=(screen_width * 2, screen_height * 2),
-    )
-
+    load_image()
     # Background image
-    bg_image_label = ctk.CTkLabel(Start_window, text="", image=logo_BG_image)
+    bg_image_label = ctk.CTkLabel(Start_window, text="", image=images_logos["logo_BG_image"])
     bg_image_label.place(
         relx=0, rely=0, relwidth=1, relheight=1
     )  # Fill the entire window
@@ -437,7 +462,7 @@ def start():
     navigation_frame_label_KMITL = ctk.CTkLabel(
         logo_frame,
         text="",
-        image=logo_KMITL_image,
+        image=images_logos["logo_KMITL_image"],
         font=ctk.CTkFont(size=16, weight="bold"),
         fg_color="white",
         corner_radius=20,
@@ -445,7 +470,7 @@ def start():
     navigation_frame_label_KMITL.pack(side="left", padx=20, pady=(10, 10))
 
     logo_rie_label = ctk.CTkLabel(
-        logo_frame, text="", image=logo_RIE_image, fg_color="white", corner_radius=20
+        logo_frame, text="", image=images_logos["logo_RIE_image"], fg_color="white", corner_radius=20
     )
     logo_rie_label.pack(side="left", pady=(10, 10))
 
@@ -467,7 +492,7 @@ def start():
     )
     frame_a.pack(side="left", expand=True, anchor="n", pady=(5, 10), padx=(30, 100))
     label_a = ctk.CTkLabel(
-        frame_a, text="", image=logo_KMITL_image, width=320, height=320
+        frame_a, text="", image=images_logos["logo_KMITL_image"], width=320, height=320
     )
     label_a.pack(side="top", expand=True, padx=10)  # Expand to fill remaining space
     toggle_a_button = ctk.CTkButton(
@@ -484,7 +509,7 @@ def start():
     )
     frame_b.pack(side="right", expand=True, anchor="n", pady=(5, 10), padx=(100, 30))
     label_b = ctk.CTkLabel(
-        frame_b, text="", image=logo_KMITL_image, width=320, height=320
+        frame_b, text="", image=images_logos["logo_KMITL_image"], width=320, height=320
     )
     label_b.pack(
         side="top", expand=True, padx=10
@@ -632,23 +657,9 @@ def face_recording():
     face_window.geometry(f"{1080}x{720}")
     face_window.resizable(False, False)
     find_names()
-
-    # Get image directory path
-    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-
-    # Load two images
-    logo_KMITL_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130)
-    )
-    logo_RIE_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130)
-    )
-    logo_BG_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(1080, 720)
-    )
-
+    load_image()
     # Background image
-    bg_image_label = ctk.CTkLabel(face_window, text="", image=logo_BG_image)
+    bg_image_label = ctk.CTkLabel(face_window, text="", image=images_logos['logo_BG_image'])
 
     bg_image_label.place(
         relx=0, rely=0, relwidth=1, relheight=1
@@ -664,7 +675,7 @@ def face_recording():
     navigation_frame_label_KMITL = ctk.CTkLabel(
         logo_frame,
         text="",
-        image=logo_KMITL_image,
+        image=images_logos['logo_KMITL_image'],
         font=ctk.CTkFont(size=16, weight="bold"),
         fg_color="white",
         corner_radius=20,
@@ -672,7 +683,7 @@ def face_recording():
     navigation_frame_label_KMITL.pack(side="left", padx=20, pady=(10, 10))
 
     logo_rie_label = ctk.CTkLabel(
-        logo_frame, text="", image=logo_RIE_image, fg_color="white", corner_radius=20
+        logo_frame, text="", image=images_logos['logo_RIE_image'], fg_color="white", corner_radius=20
     )
     logo_rie_label.pack(side="left", pady=(10, 10))
 
@@ -696,7 +707,7 @@ def face_recording():
     )
     frame_r.pack(expand=True, anchor="n", pady=(5, 10), padx=(30, 30))
     label_r = ctk.CTkLabel(
-        frame_r, text="", image=logo_KMITL_image, width=320, height=320
+        frame_r, text="", image=images_logos['logo_KMITL_image'], width=320, height=320
     )
     label_r.pack(
         side="top", expand=True, padx=10, pady=10
@@ -850,95 +861,7 @@ def setting():
     window_setting.geometry("700x550")
     window_setting.resizable(False, False)
     find_names()
-    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-    small_logo_KMITL_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(76, 76)
-    )
-    logo_KMITL_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130)
-    )
-    logo_RIE_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(26, 26)
-    )
-    address_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "address-book for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "address-book for dark.png")),
-        size=(20, 20),
-    )
-    camera_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "camera for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "camera for dark.png")),
-        size=(20, 20),
-    )
-    home_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "home for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "home for dark.png")),
-        size=(20, 20),
-    )
-    lock_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "lock for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "lock for dark.png")),
-        size=(20, 20),
-    )
-    sitting_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "settings for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "settings for dark.png")),
-        size=(20, 20),
-    )
-    trash_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "trash for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "trash for dark.png")),
-        size=(20, 20),
-    )
-    user_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "user for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "user for dark.png")),
-        size=(20, 20),
-    )
-    video_logo = ctk.CTkImage(
-        light_image=Image.open(
-            os.path.join(image_path, "video-camera-alt for light.png")
-        ),
-        dark_image=Image.open(
-            os.path.join(image_path, "video-camera-alt for dark.png")
-        ),
-        size=(20, 20),
-    )
-    mode_event_icon = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "contrast.png")),
-        dark_image=Image.open(os.path.join(image_path, "moon-phase.png")),
-        size=(30, 30),
-    )
-    IP_address_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "ip-address for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "ip-address for dark.png")),
-        size=(20, 20),
-    )
-
-    rescue_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "rescue for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "rescue for dark.png")),
-        size=(30, 30),
-    )
-    baby_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "baby for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "baby for dark.png")),
-        size=(30, 30),
-    )
-    snake_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "snake for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "snake for dark.png")),
-        size=(30, 30),
-    )
-    bandit_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "bandit for light.png")),
-        dark_image=Image.open(os.path.join(image_path, "bandit for dark.png")),
-        size=(30, 30),
-    )
-    loupe_logo = ctk.CTkImage(
-        light_image=Image.open(os.path.join(image_path, "loupe.png")), size=(30, 30)
-    )
-
+    load_image()
     # create navigation frame
     navigation_frame = ctk.CTkFrame(window_setting, corner_radius=20)
     navigation_frame.pack(side="left", fill="y", padx=10, pady=10)
@@ -947,7 +870,7 @@ def setting():
     navigation_frame_label = ctk.CTkLabel(
         navigation_frame,
         text="  SITTING MENU",
-        image=small_logo_KMITL_image,
+        image=images_logos['small_logo_KMITL_image'],
         compound="left",
         font=ctk.CTkFont(size=15, weight="bold"),
         fg_color="white",
@@ -964,7 +887,7 @@ def setting():
         fg_color="transparent",
         text_color=("gray10", "gray90"),
         hover_color=("gray70", "gray30"),
-        image=home_logo,
+        image=images_logos['home_logo'],
         anchor="w",
         command=lambda: show_frame("home"),
     )
@@ -979,7 +902,7 @@ def setting():
         fg_color="transparent",
         text_color=("gray10", "gray90"),
         hover_color=("gray70", "gray30"),
-        image=address_logo,
+        image=images_logos['address_logo'],
         anchor="w",
         command=lambda: show_frame("frame_2"),
     )
@@ -994,7 +917,7 @@ def setting():
         fg_color="transparent",
         text_color=("gray10", "gray90"),
         hover_color=("gray70", "gray30"),
-        image=sitting_logo,
+        image=images_logos['sitting_logo'],
         anchor="w",
         command=lambda: show_frame("frame_3"),
     )
@@ -1040,7 +963,7 @@ def setting():
     User_manual_1 = ctk.CTkLabel(
         User_manual_frame,
         text="1.ผู้ใช้งานระบบจำเป็นต้องลงทะเบียนกล้องที่ ",
-        image=address_logo,
+        image=images_logos["address_logo"],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1050,7 +973,7 @@ def setting():
     User_manual_2 = ctk.CTkLabel(
         User_manual_frame,
         text="    • กรอกชื่อผู้ใช้ระบบ ",
-        image=user_logo,
+        image=images_logos['user_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1060,7 +983,7 @@ def setting():
     User_manual_3 = ctk.CTkLabel(
         User_manual_frame,
         text="    • กรอกรหัสผู้ใช้ระบบ ",
-        image=lock_logo,
+        image=images_logos["lock_logo"],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1070,7 +993,7 @@ def setting():
     User_manual_4 = ctk.CTkLabel(
         User_manual_frame,
         text="    • กรอก IP ของกล้องผู้ใช้ ",
-        image=IP_address_logo,
+        image=images_logos['IP_address_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1080,7 +1003,7 @@ def setting():
     User_manual_5 = ctk.CTkLabel(
         User_manual_frame,
         text="    • เลือกคุณภาพของภาพ ",
-        image=sitting_logo,
+        image=images_logos['sitting_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1098,7 +1021,7 @@ def setting():
     User_manual_7 = ctk.CTkLabel(
         User_manual_frame,
         text="    • คนล้ม  ",
-        image=rescue_logo,
+        image=images_logos['rescue_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1109,7 +1032,7 @@ def setting():
     User_manual_8 = ctk.CTkLabel(
         User_manual_frame,
         text="    • งู  ",
-        image=snake_logo,
+        image=images_logos['snake_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1120,7 +1043,7 @@ def setting():
     User_manual_9 = ctk.CTkLabel(
         User_manual_frame,
         text="    • เด็กสำลอก  ",
-        image=baby_logo,
+        image=images_logos['baby_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1131,7 +1054,7 @@ def setting():
     User_manual_10 = ctk.CTkLabel(
         User_manual_frame,
         text="    • คนแปลกหน้า  ",
-        image=bandit_logo,
+        image=images_logos['bandit_logo'],
         compound="right",
         font=ctk.CTkFont(size=14),
         text_color="black",
@@ -1150,7 +1073,7 @@ def setting():
     left_frame.pack(side="left", fill="both", expand=True, padx=5, pady=10)
 
     mode_event = ctk.CTkLabel(
-        left_frame, text="", image=mode_event_icon, width=100, font=ctk.CTkFont(size=14)
+        left_frame, text="", image=images_logos['mode_event_icon'], width=100, font=ctk.CTkFont(size=14)
     )
     mode_event.pack(pady=(5, 10))
 
@@ -1175,7 +1098,7 @@ def setting():
     right_frame.pack(side="right", fill="both", expand=True, padx=5, pady=10)
 
     loupe_event = ctk.CTkLabel(
-        right_frame, text="", image=loupe_logo, width=100, font=ctk.CTkFont(size=14)
+        right_frame, text="", image=images_logos['loupe_logo'], width=100, font=ctk.CTkFont(size=14)
     )
     loupe_event.pack(pady=(5, 10))
 
@@ -1211,7 +1134,7 @@ def setting():
     label_name = ctk.CTkLabel(
         name_frame,
         text=" ลงชื่อ",
-        image=user_logo,
+        image=images_logos['user_logo'],
         compound="left",
         width=label_width,
         anchor="w",
@@ -1229,7 +1152,7 @@ def setting():
     label_password = ctk.CTkLabel(
         password_frame,
         text=" รหัสผ่าน",
-        image=lock_logo,
+        image=images_logos['lock_logo'],
         compound="left",
         width=label_width,
         anchor="w",
@@ -1249,7 +1172,7 @@ def setting():
     label_button = ctk.CTkLabel(
         button_frame,
         text=" IP",
-        image=address_logo,
+        image=images_logos['address_logo'],
         compound="left",
         width=label_width,
         anchor="w",
@@ -1269,7 +1192,7 @@ def setting():
     label_port = ctk.CTkLabel(
         port_frame,
         text=" คุณภาพ",
-        image=sitting_logo,
+        image=images_logos['sitting_logo'],
         compound="left",
         width=label_width,
         anchor="w",
@@ -1420,21 +1343,10 @@ def Main_window():
     root.title("ระบบความปลอดภัย")
     root.geometry("1000x700")
     root.resizable(False, False)
-
-    # Image paths
-    image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
-    logo_KMITL_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "KMITL-Photoroom.png")), size=(130, 130)
-    )
-    logo_RIE_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "RIE-Photoroom.png")), size=(130, 130)
-    )
-    logo_BG_image = ctk.CTkImage(
-        Image.open(os.path.join(image_path, "bg_gradient.jpg")), size=(1000, 1000)
-    )
+    load_image()
 
     # Background
-    bg_image_label = ctk.CTkLabel(root, text="", image=logo_BG_image)
+    bg_image_label = ctk.CTkLabel(root, text="", image=images_logos['logo_BG_image'])
     bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)
     bg_image_label.lower()
 
@@ -1456,7 +1368,7 @@ def Main_window():
     navigation_frame_label_KMITL = ctk.CTkLabel(
         logo_container,
         text="",
-        image=logo_KMITL_image,
+        image=images_logos['logo_KMITL_image'],
         fg_color=("#ffffff"),
         corner_radius=15,
     )
@@ -1465,7 +1377,7 @@ def Main_window():
     logo_rie_label = ctk.CTkLabel(
         logo_container,
         text="",
-        image=logo_RIE_image,
+        image=images_logos['logo_RIE_image'],
         fg_color=("#ffffff"),
         corner_radius=15,
     )
