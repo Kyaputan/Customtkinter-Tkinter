@@ -23,8 +23,9 @@ headers = {
     "Authorization": "Bearer " + token,
 }
 root = ctk.CTk()
-model_path = "CodeCit/Collet/Model/best.pt"
-model = YOLO(r"CodeCit\Lab4-Customtkinter-Tkinter\ex06\model.pt")
+folder_path = os.path.dirname(os.path.realpath(__file__))
+model_path = os.path.join(folder_path, "model.pt")
+model = YOLO(model_path)
 global selected_value, cap_a, cap_b, cap_r
 snake_count = personfall_count = vomit_count = 0
 running_a = running_b = running_r = False
@@ -37,8 +38,8 @@ unknown_frame_count = known_frame_count = 0
 lock = threading.Lock()
 frame_counter = 0
 interval = 5
-folder_path = "CodeCit/Lab4-Customtkinter-Tkinter/ex06/Face_reg"
-image_count = image_face_count = active_frame_count = 0
+Face_path = os.path.join(folder_path, "Face_reg")
+image_count =  active_frame_count = 0
 home_frame = second_frame = Third_frame = None
 entry_name = entry_password_sitting = url_now = ""
 images_logos = {}
@@ -180,12 +181,13 @@ def show_frame(frame_name):
 
 def find_known_face_names():
     global image_count
-    folder_path = "CodeCit/Lab4-Customtkinter-Tkinter/ex06/Face_reg"
+    folder_path = os.path.dirname(os.path.realpath(__file__))
+    Face_path = os.path.join(folder_path, "Face_reg")
 
-    for filename in os.listdir(folder_path):
+    for filename in os.listdir(Face_path):
         image_count += 1
         if filename.endswith(".jpg"):
-            image_path = os.path.join(folder_path, filename)
+            image_path = os.path.join(Face_path, filename)
             image = face_recognition.load_image_file(image_path)
             encoding = face_recognition.face_encodings(image)
             time.sleep(0.3)
@@ -249,16 +251,17 @@ def toggle_camera_r():
     else:
         running_r = True
         cap_r = cv2.VideoCapture(0)  # กล้อง A ใช้ index 0
-        folder_path = "CodeCit/Lab4-Customtkinter-Tkinter/ex06/Face_reg"
+        folder_path = os.path.dirname(os.path.realpath(__file__))
+        Face_path = os.path.join(folder_path, "Face_reg")
         thread_r = threading.Thread(
-            target=show_frame_r, args=(label_r, folder_path, interval)
+            target=show_frame_r, args=(label_r, Face_path, interval)
         )
         thread_r.start()
 
 
 def detect_yolo(frame):
     global snake_count, personfall_count, vomit_count
-    results = model(frame, conf=0.1)
+    results = model(frame, conf=0.2)
     snake_found = False
     personfall_found = False
     vomit_found = False
@@ -705,9 +708,9 @@ def show_camera_b_value():
 
 def find_names():
     global All_name
-    folder_path = "CodeCit\Lab4-Customtkinter-Tkinter\ex06\Face_reg"
-
-    for filename in os.listdir(folder_path):
+    folder_path = os.path.dirname(os.path.realpath(__file__))
+    Face_path = os.path.join(folder_path, "Face_reg")
+    for filename in os.listdir(Face_path):
         if filename.endswith(".jpg"):
             name_without_extension = os.path.splitext(filename)[0]  # ตัดส่วนขยายออก
             if name_without_extension not in All_name:  # ตรวจสอบว่าชื่อซ้ำหรือไม่
@@ -833,7 +836,7 @@ def face_recording():
             scrollable_frame,
             text=f"บุคคลที่{name+1} : {All_name[name]}",
             font=ctk.CTkFont(size=12, weight="normal"),
-        )  # แสดงชื่อจาก All_name
+        ) 
         Name.pack(padx=10, pady=5)
 
 
@@ -845,24 +848,18 @@ def exit_face():
 
 
 def save_image_b():
-    global image_face_count, entry_name
+    global entry_name
     if cap_r is not None and cap_r.isOpened():
         ret, frame = cap_r.read()
         if ret:
             filename = entry_name.get()
             if filename:
-                save_path = os.path.join(
-                    os.getcwd(), "CodeCit\Lab4-Customtkinter-Tkinter\ex06\Face_reg"
-                )
-                if not os.path.exists(save_path):
-                    os.makedirs(save_path)
-                image_face_count += 1
-                full_filename = os.path.join(save_path, f"{filename}.jpg")
-
-                if os.path.exists(full_filename):
-                    label_r.configure(text="File already exists! Choose another name.")
+                folder_path = os.path.dirname(os.path.realpath(__file__))
+                Face_path = os.path.join(folder_path, "Face_reg")
+                full_filename = os.path.join(Face_path, f"{filename}.jpg")
+                if os.path.exists(filename):
+                    label_r.configure(text="File already exists! Choose another name.") 
                     return
-
                 cv2.imwrite(full_filename, frame)
                 print(f"Image saved at: {full_filename}")
                 label_r.configure(text="Image saved!")
@@ -890,13 +887,12 @@ def delete_image_face():
     filename = entry_name.get()
     if filename:
         if messagebox.askokcancel(
-            "Delete !!!", f"Do you really want to delete {filename} ?"
-        ):
+            "Delete !!!", f"Do you really want to delete {filename} ?"):
             for ext in [".jpg", ".jpeg"]:
                 file_path = os.path.join(
-                    os.getcwd(),
-                    "CodeCit\Lab4-Customtkinter-Tkinter\ex06\Face_reg",
-                    f"{filename}{ext}",
+                    os.path.dirname(os.path.realpath(__file__)),  
+                    "Face_reg",  
+                    f"{filename}{ext}", 
                 )
                 if os.path.exists(file_path):
                     os.remove(file_path)
@@ -912,18 +908,14 @@ def delete_image_sitting():
     filename = entry_name_Delete.get()
     if filename:
         if messagebox.askokcancel(
-            "Delete !!!", f"Do you really want to delete {filename}?"
-        ):
+            "Delete !!!", f"Do you really want to delete {filename}?"):
             for ext in [".jpg", ".jpeg"]:
-                file_path = os.path.join(
-                    os.getcwd(),
-                    "CodeCit\Lab4-Customtkinter4-Tkinter\ex06\Face_reg",
-                    f"{filename}{ext}",
-                )
+                file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),"Face_reg",  f"{filename}{ext}")
+                print(file_path)
                 if os.path.exists(file_path):
                     os.remove(file_path)
                     print(f"Deleted: {file_path}")
-                    messagebox.showinfo("Deleted")
+                    messagebox.showinfo("Deleted", f"Deleted: {filename}")
                     return
         messagebox.showerror("Delete !!!", "File not found.")
     else:

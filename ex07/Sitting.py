@@ -8,6 +8,7 @@ from tkinter import messagebox
 ip_camera_url_1 = ""
 All_name = ["captain","tee","point"] 
 # New
+ip_camera_url_1 = ""
 ip_camera_url_2 = ""
 ip_camera_url_3 = ""
 ip_camera_url_4 = ""
