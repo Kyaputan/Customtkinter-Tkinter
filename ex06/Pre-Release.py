@@ -12,6 +12,7 @@ import requests
 from queue import Queue
 import numpy as np
 
+
 global_selected_quality = ""
 ip_camera_url_1 = ip_camera_url_2 = ip_camera_url_3 = ip_camera_url_4 = ip_camera_url_5 = ip_camera_url_6 = ""
 url_1 = url_2 = url_3 = url_4 = url_5 = url_6 = ""
@@ -46,14 +47,14 @@ images_logos = {}
 Additional = None
 
 
-def show_address():
-    global url_6 , url_5 , url_4 ,url_3 , url_2 , url_1
-    print(f'url_1 {url_1}')
-    print(f'url_2 {url_2}')
-    print(f'url_3 {url_3}')
-    print(f'url_4 {url_4}')
-    print(f'url_5 {url_5}')
-    print(f'url_6 {url_6}')
+# def show_address():
+#     global url_6 , url_5 , url_4 ,url_3 , url_2 , url_1
+#     print(f'url_1 {url_1}')
+#     print(f'url_2 {url_2}')
+#     print(f'url_3 {url_3}')
+#     print(f'url_4 {url_4}')
+#     print(f'url_5 {url_5}')
+#     print(f'url_6 {url_6}')
 
 def load_image():
     global images_logos
@@ -233,13 +234,11 @@ def show_frame_r(label_r, folder_path, interval=5):
     small_frame = cv2.resize(frame, (320, 240))
     small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
     detect_bounding_box(small_frame)
-    # แสดงภาพบน label
+    # Display image on label
     img = Image.fromarray(small_frame)
     imgtk = ImageTk.PhotoImage(image=img)
     label_r.imgtk = imgtk
     label_r.configure(image=imgtk)
-
-    # เรียก show_frame_r ใหม่หลังจาก 200 มิลลิวินาที
     label_r.after(70, show_frame_r, label_r, folder_path, interval)
 
 
@@ -289,7 +288,6 @@ def detect_yolo(frame):
             time.sleep(0.3)
             print(S.text)
             snake_count = 0
-            time.sleep(10)
     else:
         snake_count = 0
 
@@ -303,7 +301,6 @@ def detect_yolo(frame):
             time.sleep(0.3)
             print(P.text)
             personfall_count = 0  # เริ่มนับใหม่
-            time.sleep(10)  # หน่วงเวลา 10 วินาทีก่อนจะส่งคำขอใหม่
     else:
         personfall_count = 0  # เริ่มนับใหม่เมื่อไม่พบคน
 
@@ -317,7 +314,6 @@ def detect_yolo(frame):
             time.sleep(0.3)
             print(V.text)
             vomit_count = 0  # เริ่มนับใหม่
-            time.sleep(10)  # หน่วงเวลา 10 วินาทีก่อนจะส่งคำขอใหม่
     else:
         vomit_count = 0  # เริ่มนับใหม่เมื่อไม่พบรถ
     return results[0].plot()
@@ -379,7 +375,6 @@ def face_recog(frame):
                     print(r.text)
                     known_frame_count = 0
                     last_known_notified_time = current_time
-
     return frame
 
 
@@ -1329,8 +1324,8 @@ def setting():
     agree_button.pack(pady=10,fill="x", expand=True,padx=40)
     
     
-    show_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="red", hover_color="#46b842",command=show_address)
-    show_button.pack(pady=10,fill="x", expand=True,padx=40)
+    # show_button = ctk.CTkButton(tabview.tab("Camera 6"), text="agree", fg_color="red", hover_color="#46b842",command=show_address)
+    # show_button.pack(pady=10,fill="x", expand=True,padx=40)
 
     label_port = ctk.CTkLabel(
         second_frame,
@@ -1377,7 +1372,8 @@ def setting():
         Name_sitting = ctk.CTkLabel(
             mane_frame_Third,
             text=f"บุคคลที่{name+1} : {All_name[name]}",
-            font=ctk.CTkFont(size=12, weight="normal"),
+            font=ctk.CTkFont(size=16, weight="normal"),
+            text_color="black",
         )
         Name_sitting.pack(padx=10, pady=5)
 
