@@ -260,15 +260,13 @@ def toggle_camera_r():
 
 def detect_yolo(frame):
     global snake_count, personfall_count, vomit_count
-    results = model(frame, conf=0.2)
+    results = model.predict(frame, conf=0.2, iou=0.45)
     snake_found = False
     personfall_found = False
     vomit_found = False
     for result in results:  # results เป็นลิสต์
-        print("pass loop 1")
         for detection in result.boxes:  # เข้าถึงข้อมูลการตรวจจับในแต่ละผลลัพธ์
             class_id = int(detection.cls)  # หมายเลขคลาส
-            print("pass loop 2")
             if class_id == 3:
                 snake_found = True
             elif class_id == 0:
@@ -282,11 +280,15 @@ def detect_yolo(frame):
         snake_count += 1
         print(f"snake_count : {snake_count}")
         if snake_count == 10:
+            img_folder = os.path.join(folder_path, "img-cap")
+            img_path = os.path.join(img_folder, f"snake_detected_{int(time.time())}.jpg")
+            cv2.imwrite(img_path, frame)
             message_S = "ตรวจพบสิ่งต้องสงสัยคล้ายงู"
             time.sleep(0.3)
             S = requests.post(url_line, headers=headers, data={"message": message_S})
             time.sleep(0.3)
             print(S.text)
+
             snake_count = 0
     else:
         snake_count = 0
@@ -391,9 +393,7 @@ def show_frame_a(label_a, detection_mode):
         small_frame = cv2.resize(frame, (320, 240))
         small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
         if detection_mode.get() == "Face_Recognition":
-            recognition_thread = threading.Thread(
-                target=face_recog, args=(small_frame,)
-            )
+            recognition_thread = threading.Thread(target=face_recog, args=(small_frame,))
             recognition_thread.start()
         elif detection_mode.get() == "YOLO":
             small_frame = detect_yolo(small_frame)
@@ -404,12 +404,12 @@ def show_frame_a(label_a, detection_mode):
         imgtk = ImageTk.PhotoImage(image=img)
         label_a.imgtk = imgtk
         label_a.configure(image=imgtk)
-        label_a.after(100, show_frame_a, label_a, detection_mode)
+        label_a.after(200, show_frame_a, label_a, detection_mode)
 
 
-def show_frame_b(label_b, detection_mode, url):
+def show_frame_b(label_b, detection_mode, url_1):
     global running_b, cap_b, frame_counter, active_frame_count
-    if url:
+    if url_1:
         if running_b:
             if not cap_b.isOpened():
                 print("Failed to open camera")
@@ -427,7 +427,8 @@ def show_frame_b(label_b, detection_mode, url):
             small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
             if active_frame_count < 30:
                 if detection_mode.get() == "Face_Recognition":
-                    small_frame = face_recog(small_frame)
+                    recognition_thread = threading.Thread(target=face_recog, args=(small_frame,))
+                    recognition_thread.start()
                 elif detection_mode.get() == "YOLO":
                     small_frame = detect_yolo(small_frame)
                 elif detection_mode.get() == "Both":
@@ -444,7 +445,7 @@ def show_frame_b(label_b, detection_mode, url):
             imgtk = ImageTk.PhotoImage(image=img)
             label_b.imgtk = imgtk
             label_b.configure(image=imgtk)
-            label_b.after(50, show_frame_b, label_b, detection_mode, url)
+            label_b.after(200, show_frame_b, label_b, detection_mode, url_1)
     else:
         messagebox.showerror("Error", "No address input received")
 
@@ -467,8 +468,8 @@ def toggle_camera_a():
 
 
 def toggle_camera_b():
-    global running_b, cap_b, url
-    if not url:
+    global running_b, cap_b, url_1
+    if not url_1:
         messagebox.showerror("Error", "No address input received")
         return
     if detection_mode.get() == "Face_Recognition" and len(known_face_names) == 0:
@@ -480,10 +481,11 @@ def toggle_camera_b():
         running_b = False
         cap_b.release()
     else:
+        print("url_1", url_1)
         running_b = True
-        cap_b = cv2.VideoCapture(url)
+        cap_b = cv2.VideoCapture(url_1)
         thread_b = threading.Thread(
-            target=show_frame_b, args=(label_b, detection_mode, url)
+            target=show_frame_b, args=(label_b, detection_mode, url_1)
         )
         thread_b.start()
 
@@ -652,13 +654,13 @@ def start():
         rb.pack(pady=5, padx=20, anchor="w")
 
 
-def start_threads(label_a, label_b, detection_mode, url):
+def start_threads(label_a, label_b, detection_mode, url_1):
     global running_a, running_b, cap_a, cap_b
-    if url:
+    if url_1:
         running_b = True
-        cap_b = cv2.VideoCapture(url)
+        cap_b = cv2.VideoCapture(url_1)
         thread_b = threading.Thread(
-            target=show_frame_b, args=(label_b, detection_mode, url)
+            target=show_frame_b, args=(label_b, detection_mode, url_1)
         )
         thread_b.start()
     else:
@@ -694,9 +696,9 @@ def go_Face_Recognition():
 
 
 def show_camera_b_value():
-    global url
-    if url:
-        messagebox.showinfo("Camera B", f"Camera B URL: {url}")
+    global url_1
+    if url_1:
+        messagebox.showinfo("Camera B", f"Camera B URL: {url_1}")
     else:
         messagebox.showerror("Error", "No camera URL input provided")
 
@@ -918,7 +920,7 @@ def delete_image_sitting():
 
 
 def setting():
-    global home_frame, second_frame, Third_frame, entry_name, entry_password_sitting, url, url_now, entry_name_Delete, window_setting
+    global home_frame, second_frame, Third_frame, entry_name, entry_password_sitting, url_1, url_now, entry_name_Delete, window_setting
 
     window_setting = ctk.CTkToplevel(root)
     window_setting.title("Setting")
