@@ -390,14 +390,15 @@ def show_frame_a(label_a, detection_mode):
         if not ret:
             print("Failed to grab frame")
             return
-        small_frame = cv2.resize(frame, (320, 240))
+        small_frame = cv2.resize(frame, (320, 320))
         small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-        if detection_mode.get() == "Face_Recognition":
+        mode = detection_mode.get()
+        if mode == "Face_Recognition":
             recognition_thread = threading.Thread(target=face_recog, args=(small_frame,))
             recognition_thread.start()
-        elif detection_mode.get() == "YOLO":
+        elif mode == "YOLO":
             small_frame = detect_yolo(small_frame)
-        elif detection_mode.get() == "Both":
+        elif mode == "Both":
             small_frame = detect_yolo(small_frame)
             small_frame = face_recog(small_frame)
         img = Image.fromarray(small_frame)
@@ -422,25 +423,25 @@ def show_frame_b(label_b, detection_mode, url_1):
             if not ret:
                 print("Failed to grab frame")
                 return
-
-            small_frame = cv2.resize(frame, (320, 240))
+            small_frame = cv2.resize(frame, (320, 320))
             small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            
             if active_frame_count < 30:
-                if detection_mode.get() == "Face_Recognition":
+                mode = detection_mode.get()
+                if mode == "Face_Recognition":
                     recognition_thread = threading.Thread(target=face_recog, args=(small_frame,))
                     recognition_thread.start()
-                elif detection_mode.get() == "YOLO":
+                elif mode == "YOLO":
                     small_frame = detect_yolo(small_frame)
-                elif detection_mode.get() == "Both":
+                elif mode == "Both":
                     small_frame = detect_yolo(small_frame)
                     small_frame = face_recog(small_frame)
                 active_frame_count += 1
+            elif frame_counter < 10:
+                frame_counter += 1
             else:
-                if frame_counter < 10:  # พัก 3 เฟรม
-                    frame_counter += 1
-                else:
-                    active_frame_count = 0
-                    frame_counter = 0
+                active_frame_count = 0
+                frame_counter = 0
             img = Image.fromarray(small_frame)
             imgtk = ImageTk.PhotoImage(image=img)
             label_b.imgtk = imgtk
