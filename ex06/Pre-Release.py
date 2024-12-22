@@ -25,7 +25,7 @@ headers = {
 }
 root = ctk.CTk()
 folder_path = os.path.dirname(os.path.realpath(__file__))
-model_path = os.path.join(folder_path, "model.onnx")
+model_path = os.path.join(folder_path, "modelYolo.onnx")
 model = YOLO(model_path,task='detect')
 global selected_value, cap_a, cap_b, cap_r
 snake_count = personfall_count = vomit_count = 0

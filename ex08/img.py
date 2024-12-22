@@ -4,14 +4,15 @@ import cv2
 from tkinter import filedialog as fd
 from tkinter.messagebox import showinfo
 from ultralytics import YOLO
-model_path = "CodeCit\Lab5 Customtkinter&Tkinter\ex08\Best.pt"
+import os
 
-model = YOLO(model_path)
+folder_path = os.path.dirname(os.path.realpath(__file__))
+model_path = os.path.join(folder_path, "modelYolo.onnx")
+model = YOLO(model_path,task="detect")
 
-# ฟังก์ชันสำหรับโหลดและแสดงภาพ
 def load_image(filepath):
-    global img_display, img_path  # เก็บไฟล์ path ของรูปภาพที่เลือก และรูปที่แสดงอยู่
-    img = cv2.imread(filepath)  # โหลดภาพจากไฟล์
+    global img_display, img_path  
+    img = cv2.imread(filepath)
     if img is not None:
         small_frame = cv2.resize(img, (640, 640))
         img = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
@@ -27,12 +28,12 @@ def select_file():
     filetypes = (('Image files', '*.jpg;*.jpeg;*.png'), ('All files', '*.*'))
     filename = fd.askopenfilename(title='Open an image file', initialdir='/', filetypes=filetypes)
     
-    if filename:  # ถ้าเลือกไฟล์ได้ ให้โหลดภาพ
+    if filename:  
         load_image(filename)
 
 def detect_yolo(frame):
-    # เรียกโมเดล YOLO เพื่อทำการตรวจจับ
-    results = model(frame)
+
+    results = model.predict(frame,conf=0.2)
 
     # ดึงภาพที่วาดกรอบการตรวจจับแล้วและแปลงเป็น numpy array
     processed_image = results[0].plot()
