@@ -66,7 +66,7 @@ def Main_window():
 
     text_rie_label = ctk.CTkLabel(
         text_container,
-        text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบังวิทยาเขตชุมพรเขตรอุดมศักดิ์",
+        text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบังวิทยาเขตชุมพรเขตอุดมศักดิ์",
         font=ctk.CTkFont(family="FC Minimal", size=21, weight="bold"),
         justify="left",
         text_color="#E35205",
