@@ -1,8 +1,20 @@
 import customtkinter as ctk
 import os
 from PIL import Image
+import cv2
+import tkinter as tk
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
+from ultralytics import YOLO
+from PIL import Image, ImageTk
 
 images_logos = {}
+img_path = None
+img_display = None
+label_show = None
+Select_more = None
+single_CNN = None
+
 def load_image():
     global images_logos
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -104,6 +116,9 @@ def load_image():
 
 Select_more = ctk.CTk()
 
+
+
+
 def more_model():
 
     load_image()
@@ -182,7 +197,7 @@ def more_model():
     Select_more.mainloop()
 
 def single_CNN_img():
-    
+    global label_show
     single_CNN = ctk.CTkToplevel(Select_more)
     single_CNN.title("face_recording")
     single_CNN.geometry("800x600")
@@ -190,25 +205,84 @@ def single_CNN_img():
     single_CNN.resizable(False, False)
 
 
-
-    # พื้นที่แสดงภาพหรือวิดีโอ
     frame_image = ctk.CTkFrame(single_CNN)
     frame_image.pack(pady=20, padx=20, expand=True, fill="both")
 
-    # Label สำหรับแสดงภาพ
-    label = ctk.CTkLabel(frame_image, text="")
-    label.pack(expand=True)
+    label_show = ctk.CTkLabel(frame_image, text="")
+    label_show.pack(expand=True)
 
-    # สร้างกรอบปุ่มด้านล่าง
     frame_buttons = ctk.CTkFrame(single_CNN)
     frame_buttons.pack(pady=10)
 
     # ปุ่มเลือกไฟล์
-    button1 = ctk.CTkButton(frame_buttons, text="เลือกรูปภาพ", )
+    button1 = ctk.CTkButton(frame_buttons, text="เลือกรูปภาพ", command=select_file)
     button1.pack(side="left", padx=10)
 
     # ปุ่มประมวลผลด้วย YOLO
-    button2 = ctk.CTkButton(frame_buttons, text="ประมวลผล YOLO")
+    button2 = ctk.CTkButton(frame_buttons, text="ประมวลผล YOLO", command=process_yolo)
     button2.pack(side="right", padx=10)
+
+def load_image_show(filepath):
+    global img_display, img_path, label_show
+    if label_show is None:
+        showinfo(title="Error", message="Label not initialized!")
+        return
+    
+    img = cv2.imread(filepath)
+    if img is not None:
+        small_frame = cv2.resize(img, (640, 640))
+        img = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+        img_display = Image.fromarray(img)
+        img_display = ImageTk.PhotoImage(img_display)
+        label_show.configure(image=img_display)
+        label_show.image = img_display  # เก็บ reference เพื่อป้องกันการถูกลบโดย GC
+        img_path = filepath
+    else:
+        showinfo(title="Error", message="Could not load image")
+
+
+def select_file():
+    filetypes = (('Image files', '*.jpg;*.jpeg;*.png'), ('All files', '*.*'))
+    filename = fd.askopenfilename(title='Open an image file', initialdir='/', filetypes=filetypes)
+    
+    if filename:  
+        load_image_show(filename)
+
+def detect_yolo(frame):
+    try:
+        model = YOLO("CodeCit\Lab4-Customtkinter-Tkinter\ex07\modelYolo.onnx")
+        results = model.predict(frame, conf=0.2)
+        if len(results[0].boxes) > 0:  # ตรวจสอบว่ามีกล่องตรวจจับ
+            return results[0].plot()  # สร้างภาพพร้อมผลการตรวจจับ
+        else:
+            print("No objects detected")
+            return None
+    except Exception as e:
+        print(f"Error in YOLO detection: {e}")
+        return None
+
+
+
+def process_yolo():
+    global label_show, img_path
+    if img_path:
+        img = cv2.imread(img_path)  # อ่านภาพจากเส้นทาง
+        if img is not None:
+            img_yolo = detect_yolo(img)  # ส่งภาพไปที่ YOLO
+
+            if img_yolo is not None:
+                img_yolo = cv2.resize(img_yolo, (640, 640))
+                img_yolo = cv2.cvtColor(img_yolo, cv2.COLOR_BGR2RGB)
+                img_yolo = Image.fromarray(img_yolo)
+                img_yolo = ImageTk.PhotoImage(img_yolo)
+                label_show.configure(image=img_yolo)
+                label_show.image = img_yolo  # เก็บ reference
+            else:
+                showinfo(title="Error", message="YOLO did not return an image")
+        else:
+            showinfo(title="Error", message="Could not read image from path")
+    else:
+        showinfo(title="Error", message="Please select an image first")
+
 
 more_model()

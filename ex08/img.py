@@ -34,17 +34,13 @@ def select_file():
 def detect_yolo(frame):
 
     results = model.predict(frame,conf=0.2)
-
-    # ดึงภาพที่วาดกรอบการตรวจจับแล้วและแปลงเป็น numpy array
     processed_image = results[0].plot()
-
-    return processed_image  # ส่งภาพที่ผ่านการตรวจจับแล้วกลับไป
+    return processed_image
 
 
 def process_yolo():
-    if img_path:  # ตรวจสอบว่ามีภาพถูกเลือกหรือไม่
-        # ใช้ YOLO ในการตรวจจับวัตถุในภาพและวาดกรอบการตรวจจับ
-        img_yolo = detect_yolo(img_path)  # ผลลัพธ์เป็นภาพที่มีการตรวจจับแล้ว
+    if img_path:
+        img_yolo = detect_yolo(img_path)
 
         # ตรวจสอบว่าผลลัพธ์ไม่เป็น None
         if img_yolo is not None:
@@ -88,5 +84,5 @@ button2 = ctk.CTkButton(frame_buttons, text="ประมวลผล YOLO", com
 button2.pack(side="right", padx=10)
 
 
-img_path = None  # ตัวแปรสำหรับเก็บ path ของภาพที่ถูกเลือก
+img_path = None 
 app.mainloop()
