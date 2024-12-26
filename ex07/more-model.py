@@ -34,7 +34,6 @@ def add_camera_frames(show_frame):
             single_img_predict = None
         single_CNN_img()
 
-
 def load_image():
     global images_logos
     image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "images")
@@ -218,6 +217,7 @@ def clear_window():
         for widget in single_img_predict.winfo_children():
             widget.destroy()
 
+# ----------------------------------------------
 def single_Yolo_img():
     global label_show , single_img_predict
     clear_window()
@@ -228,9 +228,12 @@ def single_Yolo_img():
 
     frame_image = ctk.CTkFrame(single_img_predict,fg_color=("#ffffff", "#01061d"))
     frame_image.pack(pady=0, padx=20, expand=True, fill="both")
-
-    label_show = ctk.CTkLabel(frame_image, text="")
-    label_show.pack(expand=True)
+    
+    show_frame = ctk.CTkFrame(frame_image,fg_color=("#ffffff", "#01061d"))
+    show_frame.pack(pady=0, padx=20)
+    
+    label_show = ctk.CTkLabel(show_frame, text="",width=320)
+    label_show.pack()
 
     frame_buttons = ctk.CTkFrame(single_img_predict)
     frame_buttons.pack(pady=10, padx=10)
@@ -274,7 +277,6 @@ def single_Dino_img():
     entry_name = ctk.CTkEntry(bottom_frame, placeholder_text="Enter Detection Prompt", font=("Helvetica", 16), 
                               corner_radius=10, border_width=2, border_color="black",width=300)
     entry_name.pack(padx=10, pady=5,fill="x",expand=True)
-    
 
 def single_CNN_img():
     global label_show , single_img_predict
@@ -297,10 +299,9 @@ def single_CNN_img():
     button1 = ctk.CTkButton(frame_buttons, text="เลือกรูปภาพ", command=select_file)
     button1.pack(side="left", padx=10, pady=10)
 
-    button2 = ctk.CTkButton(frame_buttons, text="ประมวลผล CNN", command=process_yolo)
+    button2 = ctk.CTkButton(frame_buttons, text="ประมวลผล CNN")
     button2.pack(side="right", padx=10, pady=10)
-
-
+# ----------------------------------------------
 
 def load_image_show(filepath):
     global img_display, img_path, label_show
@@ -329,10 +330,12 @@ def select_file():
 
 def detect_yolo(frame):
     try:
-        model = YOLO("CodeCit\Lab4-Customtkinter-Tkinter\ex07\modelYolo.onnx")
+        folder_path = os.path.dirname(os.path.realpath(__file__))
+        model_path = os.path.join(folder_path, "modelYolo.onnx")
+        model = YOLO(model_path,task="detect")
         results = model.predict(frame, conf=0.2)
-        if len(results[0].boxes) > 0:  # ตรวจสอบว่ามีกล่องตรวจจับ
-            return results[0].plot()  # สร้างภาพพร้อมผลการตรวจจับ
+        if len(results[0].boxes) > 0:
+            return results[0].plot()
         else:
             print("No objects detected")
             return None
