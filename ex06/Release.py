@@ -362,11 +362,11 @@ def face_recog(frame):
         else:
             known_frame_count += 1  # นับจำนวนเฟรมที่พบบุคคลที่รู้จัก
 
-            if known_frame_count >= 5:
+            if known_frame_count >= 3:
                 unknown_frame_count = 0
             print("test_face_known")
             print(f"known_frame_count = {known_frame_count}")
-            if known_frame_count >= 10:
+            if known_frame_count >= 20:
                 if current_time - last_known_notified_time > 10:
                     message_r = f"ตรวจพบ {name}"
                     time.sleep(0.3)
