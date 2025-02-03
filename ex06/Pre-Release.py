@@ -19,14 +19,13 @@ url_1 = url_2 = url_3 = url_4 = url_5 = url_6 = ""
 
 url_line = "https://notify-api.line.me/api/notify"
 token = "SDmx9lI11Ml0GzCU4CB2vTL04b6t0pMqPi8s0Dmv8bH"
-headers = {
-    "content-type": "application/x-www-form-urlencoded",
-    "Authorization": "Bearer " + token,
-}
+LINE_HEADERS = {"Authorization":"Bearer "+token}
+session = requests.Session()
+
 root = ctk.CTk()
 folder_path = os.path.dirname(os.path.realpath(__file__))
 model_path = os.path.join(folder_path, "modelYolo.onnx")
-model = YOLO(model_path,task='detect')
+model_Yolo = YOLO(model_path,task='detect')
 global selected_value, cap_a, cap_b, cap_r , detection_mode, model_selection , cap_c , cap_d , cap_e , cap_f , cap_g
 snake_count = personfall_count = vomit_count = 0
 running_a = running_b = running_r = running_c = running_d = running_e = running_f = running_g = False
@@ -265,7 +264,7 @@ def toggle_camera_r():
 
 def detect_yolo(frame):
     global snake_count, personfall_count, vomit_count
-    results = model.predict(frame, conf=0.2, iou=0.45)
+    results = model_Yolo.predict(frame, conf=0.2, iou=0.45)
     snake_found = False
     personfall_found = False
     vomit_found = False
@@ -285,12 +284,15 @@ def detect_yolo(frame):
         snake_count += 1
         print(f"snake_count : {snake_count}")
         if snake_count == 10:
+            
             img_folder = os.path.join(folder_path, "img-cap")
-            img_path = os.path.join(img_folder, f"snake_detected_{int(time.time())}.jpg")
-            cv2.imwrite(img_path, frame)
-            message_S = "ตรวจพบสิ่งต้องสงสัยคล้ายงู"
+            img_snake = os.path.join(img_folder, f"snake_detected_{int(time.time())}.jpg")
+            cv2.imwrite(img_snake, frame)
+            file = {'imageFile':open(img_snake,'rb')}
+            message_S = {'message': 'ตรวจพบสิ่งต้องสงสัยคล้ายงู'}
+
             time.sleep(0.3)
-            S = requests.post(url_line, headers=headers, data={"message": message_S})
+            S = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_S)
             time.sleep(0.3)
             print(S.text)
 
@@ -302,9 +304,15 @@ def detect_yolo(frame):
         personfall_count += 1
         print(f"personfall_count : {personfall_count}")
         if personfall_count == 30:  # ถ้าพบคนครบ 10 ครั้ง
-            message_P = "ตรวจพบบุคคลที่คาดว่าต้องการความช่วยเหลือ"
+            
+            img_folder = os.path.join(folder_path, "img-cap")
+            img_person = os.path.join(img_folder, f"personfall_detected_{int(time.time())}.jpg")
+            cv2.imwrite(img_person, frame)
+            file = {'imageFile':open(img_person,'rb')}
+            message_P = {'message': 'ตรวจพบบุคคลที่คาดว่าต้องการความช่วยเหลือ'}
+            
             time.sleep(0.3)
-            P = requests.post(url_line, headers=headers, data={"message": message_P})
+            P = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_P)
             time.sleep(0.3)
             print(P.text)
             personfall_count = 0  # เริ่มนับใหม่
@@ -314,10 +322,16 @@ def detect_yolo(frame):
     if vomit_found:
         vomit_count += 1
         print(f"vomit_count : {vomit_count}")
-        if vomit_count == 3:  # ถ้าพบรถครบ 10 ครั้ง
-            message_V = "ตรวจพบเด็ก / บุคคลที่คาดว่าไม่สามารถช่วยเหลือตัวเองได้"
+        if vomit_count == 3: 
+            
+            img_folder = os.path.join(folder_path, "img-cap")
+            img_vomit = os.path.join(img_folder, f"vomit_detected_{int(time.time())}.jpg")
+            cv2.imwrite(img_vomit, frame)
+            file = {'imageFile':open(img_vomit,'rb')}
+            message_V = {'message': 'ตรวจพบเด็ก / บุคคลที่คาดว่าไม่สามารถช่วยเหลือตัวเองได้'}
+            
             time.sleep(0.3)
-            V = requests.post(url_line, headers=headers, data={"message": message_V})
+            V = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_V)
             time.sleep(0.3)
             print(V.text)
             vomit_count = 0  # เริ่มนับใหม่
@@ -354,11 +368,15 @@ def face_recog(frame):
             if unknown_frame_count >= 10:
                 if current_time - last_unknown_notified_time > 20:
 
-                    message_b = "ตรวจพบบุคคลไม่ทราบชื่อ"
+                    img_folder = os.path.join(folder_path, "img-cap")
+                    img_unknow = os.path.join(img_folder, f"Unknow_{int(time.time())}.jpg")
+                    frame_rgb = frame[:, :, ::-1]
+                    cv2.imwrite(img_unknow, frame_rgb)
+                    file = {'imageFile':open(img_unknow,'rb')}
+                    message_b = {'message': "ตรวจพบบุคคลไม่ทราบชื่อ"}
+
                     time.sleep(0.3)
-                    b = requests.post(
-                        url_line, headers=headers, data={"message": message_b}
-                    )
+                    b = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_b)
                     time.sleep(0.3)
                     print(b.text)
                     unknown_frame_count = 0
@@ -373,11 +391,17 @@ def face_recog(frame):
             print(f"known_frame_count = {known_frame_count}")
             if known_frame_count >= 10:
                 if current_time - last_known_notified_time > 10:
-                    message_r = f"ตรวจพบ {name}"
+                    
+                    img_folder = os.path.join(folder_path, "img-cap")
+                    img_know = os.path.join(img_folder, f"Unknow_{int(time.time())}.jpg")
+                    frame_rgb = frame[:, :, ::-1]
+                    cv2.imwrite(img_know, frame_rgb)
+                    
+                    file = {'imageFile':open(img_know,'rb')}
+                    message_r = {'message': f"ตรวจพบ {name}"}
+
                     time.sleep(0.3)
-                    r = requests.post(
-                        url_line, headers=headers, data={"message": message_r}
-                    )
+                    r = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_r)
                     time.sleep(0.3)
                     print(r.text)
                     known_frame_count = 0
@@ -996,7 +1020,7 @@ def start():
         )
         rb.pack(pady=3, padx=20, anchor="w",fill="both")
 
-    # Create a frame for model choices
+    # Create a frame for model_Yolo choices
     model_frame = ctk.CTkFrame(radio_frame, corner_radius=10)
     model_frame.pack(side="right", pady=5, padx=20, anchor="n")
 
