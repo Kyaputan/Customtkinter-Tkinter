@@ -434,7 +434,7 @@ def show_frame_a(label_a, detection_mode):
         imgtk = ImageTk.PhotoImage(image=img)
         label_a.imgtk = imgtk
         label_a.configure(image=imgtk)
-        label_a.after(200, show_frame_a, label_a, detection_mode)
+        label_a.after(70, show_frame_a, label_a, detection_mode)
 
 
 def show_frame_b(label_b, detection_mode, url_1):
@@ -2004,7 +2004,7 @@ def Main_window():
     text_rie_label = ctk.CTkLabel(
         text_container,
         text="สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบังวิทยาเขตชุมพรเขตรอุดมศักดิ์",
-        font=ctk.CTkFont(family="FC Minimal", size=21, weight="bold"),
+        font=ctk.CTkFont(family="FC Minimal", size=15, weight="bold"),
         justify="left",
         text_color=("#E35205", "#F9FFFC"),
     )
