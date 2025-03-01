@@ -1,16 +1,19 @@
-import customtkinter as ctk
-import cv2
-from PIL import Image, ImageTk
-from ultralytics import YOLO
-import tkinter as tk
-from tkinter import messagebox, simpledialog
-import os
-import time
-import threading
-import face_recognition
-import requests
-from queue import Queue
-import numpy as np
+try:
+    import customtkinter as ctk
+    import cv2
+    from PIL import Image, ImageTk
+    from ultralytics import YOLO , RTDETR
+    import tkinter as tk
+    from tkinter import messagebox, simpledialog
+    import os
+    import time
+    import threading
+    import face_recognition
+    import requests
+    from queue import Queue
+    import numpy as np
+except Exception as e:
+    print(f"An error occurred: {e}")
 
 
 global_selected_quality = ""
@@ -24,8 +27,14 @@ session = requests.Session()
 
 root = ctk.CTk()
 folder_path = os.path.dirname(os.path.realpath(__file__))
-model_path = os.path.join(folder_path, "modelYolo.onnx")
-model_Yolo = YOLO(model_path,task='detect')
+
+path_Yolo = os.path.join(folder_path, "modelYolo.onnx")
+path_RTDETR = os.path.join(folder_path, "modelRTDETR.onnx")
+
+model_Yolo = YOLO(path_Yolo,task='detect')
+model_RTDETR = YOLO(path_RTDETR,task='detect')
+
+
 global selected_value, cap_a, cap_b, cap_r , detection_mode, model_selection , cap_c , cap_d , cap_e , cap_f , cap_g
 snake_count = personfall_count = vomit_count = 0
 running_a = running_b = running_r = running_c = running_d = running_e = running_f = running_g = False
@@ -354,7 +363,10 @@ def face_recog(frame):
             known_face_encodings, face_encoding
         )
         best_match_index = face_distances.argmin()
-        if matches[best_match_index]:
+        
+        confidence = (1 - face_distances[best_match_index]) * 100  
+        
+        if matches[best_match_index] and confidence > 65:
             name = known_face_names[best_match_index]
         face_names.append(name)
         current_time = time.time()
@@ -372,18 +384,21 @@ def face_recog(frame):
                     img_unknow = os.path.join(img_folder, f"Unknow_{int(time.time())}.jpg")
                     frame_rgb = frame[:, :, ::-1]
                     cv2.imwrite(img_unknow, frame_rgb)
-                    file = {'imageFile':open(img_unknow,'rb')}
-                    message_b = {'message': "ตรวจพบบุคคลไม่ทราบชื่อ"}
+                    try:
+                        file = {'imageFile':open(img_unknow,'rb')}
+                        message_b = {'message': "ตรวจพบบุคคลไม่ทราบชื่อ"}
 
-                    time.sleep(0.3)
-                    b = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_b)
-                    time.sleep(0.3)
-                    print(b.text)
+                        time.sleep(0.3)
+                        b = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_b)
+                        time.sleep(0.3)
+                        print(b.text)
+                    except Exception as e:
+                        print(f"เกิดข้อผิดพลาด: {e}")
                     unknown_frame_count = 0
                     last_unknown_notified_time = current_time
 
         else:
-            known_frame_count += 1  # นับจำนวนเฟรมที่พบบุคคลที่รู้จัก
+            known_frame_count += 1 
 
             if known_frame_count >= 5:
                 unknown_frame_count = 0
@@ -393,17 +408,19 @@ def face_recog(frame):
                 if current_time - last_known_notified_time > 10:
                     
                     img_folder = os.path.join(folder_path, "img-cap")
-                    img_know = os.path.join(img_folder, f"Unknow_{int(time.time())}.jpg")
+                    img_know = os.path.join(img_folder, f"Known_{name}_{int(time.time())}.jpg")
                     frame_rgb = frame[:, :, ::-1]
                     cv2.imwrite(img_know, frame_rgb)
-                    
-                    file = {'imageFile':open(img_know,'rb')}
-                    message_r = {'message': f"ตรวจพบ {name}"}
+                    try:
+                        file = {'imageFile':open(img_know,'rb')}
+                        message_r = {'message': f"ตรวจพบ {name}"}
 
-                    time.sleep(0.3)
-                    r = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_r)
-                    time.sleep(0.3)
-                    print(r.text)
+                        time.sleep(0.3)
+                        r = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_r)
+                        time.sleep(0.3)
+                        print(r.text)
+                    except Exception as e:
+                        print(f"เกิดข้อผิดพลาด: {e}")
                     known_frame_count = 0
                     last_known_notified_time = current_time
     return frame
@@ -2714,8 +2731,13 @@ def exit_Additional():
     Additional.destroy()
     Additional = None
 
-
-Main_window()
+if __name__ == "__main__":
+    try:
+        Main_window()
+    except Exception as e:
+        print(e)
+        messagebox.showerror("Error", "An error occurred while running the program.")
+        exit_program()
 
 
 
