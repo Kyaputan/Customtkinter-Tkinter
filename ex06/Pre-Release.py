@@ -29,10 +29,10 @@ root = ctk.CTk()
 folder_path = os.path.dirname(os.path.realpath(__file__))
 
 path_Yolo = os.path.join(folder_path, "modelYolo.onnx")
-path_RTDETR = os.path.join(folder_path, "modelRTDETR.onnx")
+# path_RTDETR = os.path.join(folder_path, "modelRTDETR.onnx")
 
 model_Yolo = YOLO(path_Yolo,task='detect')
-model_RTDETR = YOLO(path_RTDETR,task='detect')
+# model_RTDETR = RTDETR(path_RTDETR,task='detect')
 
 
 global selected_value, cap_a, cap_b, cap_r , detection_mode, model_selection , cap_c , cap_d , cap_e , cap_f , cap_g
