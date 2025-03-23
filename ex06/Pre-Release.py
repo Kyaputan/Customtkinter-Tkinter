@@ -296,18 +296,15 @@ def detect_yolo(frame):
         snake_count += 1
         print(f"snake_count : {snake_count}")
         if snake_count == 10:
-            
             img_folder = os.path.join(folder_path, "snapshots")
             img_snake = os.path.join(img_folder, f"snake_detected_{int(time.time())}.jpg")
             cv2.imwrite(img_snake, frame)
             file = {'imageFile':open(img_snake,'rb')}
             message_S = {'message': 'ตรวจพบสิ่งต้องสงสัยคล้ายงู'}
-
             time.sleep(0.3)
             S = session.post(url_line, headers=LINE_HEADERS, files=file, data=message_S)
             time.sleep(0.3)
             print(S.text)
-
             snake_count = 0
     else:
         snake_count = 0
