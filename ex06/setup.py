@@ -3,7 +3,8 @@ import os
 
 folder_1 = "database"
 folder_2 = "snapshots"
-
+folder_3 = "logs"
+folder_4 = "Videos"
 now_path = os.path.dirname(os.path.realpath(__file__))
 
 
